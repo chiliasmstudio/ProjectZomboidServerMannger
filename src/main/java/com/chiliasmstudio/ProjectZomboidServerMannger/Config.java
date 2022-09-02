@@ -27,7 +27,7 @@ public class Config {
      * Load config value form config.properties.
      * @param configFileDir Directory of config.
      * @throws IOException When fail to load config.
-     * @throws Exception when
+     * @throws Exception When required argument is invalid.
     */
     public static void LoadConfig(String configFileDir) throws Exception{
         Properties properties = new Properties();
@@ -39,13 +39,19 @@ public class Config {
             throw new IOException("Fail to load config file!");
         }
 
-        Token = properties.getProperty("token", "");
-        //If token not set
-        if(Token ==null|| Token.isEmpty())
-            throw new Exception("Token not found!");
+        DiscordToken = properties.getProperty("DiscordToken", "");
+        if(DiscordToken ==null|| DiscordToken.isEmpty())
+            throw new Exception("Discord Token not found!");
+
+        SteamKey = properties.getProperty("SteamKey", "");
+        if(SteamKey ==null|| SteamKey.isEmpty())
+            throw new Exception("SteamKey not found!");
 
     }
-    /** Token of discord bot */
-    public static String Token = "";
+    /** Token of discord bot. */
+    public static String DiscordToken = "";
+
+    /** Steam Web API key. */
+    public static String SteamKey = "";
 
 }

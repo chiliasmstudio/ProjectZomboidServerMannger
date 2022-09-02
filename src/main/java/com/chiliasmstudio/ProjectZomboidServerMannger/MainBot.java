@@ -30,12 +30,12 @@ public class MainBot {
     public static JDA bot_Main= null;
 
     /**
-     * Initialization bot
-     * @param token Token of discord bot
+     * Initialization bot.
+     * @param DiscordToken Token of discord bot.
      * */
-    public static boolean initialization_Main(String token){
+    public static boolean initialization_Main(String DiscordToken){
         try {
-            botBuilder_Main = JDABuilder.createDefault(token);
+            botBuilder_Main = JDABuilder.createDefault(DiscordToken);
             botBuilder_Main.setActivity(Activity.playing("Hello discord!"));
             botBuilder_Main.enableIntents(GatewayIntent.MESSAGE_CONTENT);
 
