@@ -28,8 +28,11 @@ import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,10 +47,9 @@ public class CheckUpdate {//2857565347
      * Get and return workshop item ids in collection.
      * */
     public static ArrayList<Long> GetCollectionDetail(Long collectionID){
-
         // Send Post to steam api.
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1/");
+        HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1");
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("format", "json"));
         nvps.add(new BasicNameValuePair("key", Config.SteamKey));
@@ -84,23 +86,39 @@ public class CheckUpdate {//2857565347
 
     }
 
-    public static void GetPublishedFileDetails(){
-
+    public static void GetPublishedFileDetails(ArrayList<Long> itemList){
+        // Send Post to steam api.
         CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1");
+        HttpPost httpPost = new HttpPost(String.valueOf("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?key="+Config.SteamKey));
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("format", "json"));
-        nvps.add(new BasicNameValuePair("key", ""));
-        nvps.add(new BasicNameValuePair("itemcount", "1"));
-        nvps.add(new BasicNameValuePair("publishedfileids[0]", "2853547941"));
+        nvps.add(new BasicNameValuePair("itemcount", String.valueOf(itemList.size())));
+        for (int i = 0; i < itemList.size(); i++)
+            nvps.add(new BasicNameValuePair("publishedfileids[" + i +"]", itemList.get(i).toString()));
         httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
         try{
             CloseableHttpResponse response2 = httpclient.execute(httpPost);
-            System.out.println(response2.getCode() + " " + response2.getReasonPhrase());
+            System.out.println("GetCollectionDetail with " + response2.getCode() + " " + response2.getReasonPhrase());
             HttpEntity entity2 = response2.getEntity();
-            String responseXml = EntityUtils.toString(response2.getEntity(), "UTF-8");
-            System.out.println(responseXml);
+            // Response form steam as string.
+            String response = EntityUtils.toString(response2.getEntity(), "UTF-8");
+
+            JSONObject obj = new JSONObject(response);
+            JSONArray publishedfiledetails = obj
+                    .getJSONObject("response")
+                    .getJSONArray("publishedfiledetails");
+            for (int i = 0; i < itemList.size(); i++){
+                try {
+                    publishedfiledetails.getJSONObject(0).get("title");
+                    System.out.println(i + " " + publishedfiledetails.getJSONObject(i).get("title"));
+                }catch (JSONException e){
+                   System.out.println("Error on Check");
+                }
+
+            }
+
+            //System.out.println(response);
             // do something useful with the response body
             // and ensure it is fully consumed
             EntityUtils.consume(entity2);
