@@ -16,12 +16,13 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.function;
+package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public class HelloWorld extends ListenerAdapter {
+
     /**
      * When received !Callrole will create role selection menu.
      */

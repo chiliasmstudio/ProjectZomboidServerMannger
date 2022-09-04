@@ -16,13 +16,12 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger;
+package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.HelloWorld;
+import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.HelloWorld;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class MainBot {
