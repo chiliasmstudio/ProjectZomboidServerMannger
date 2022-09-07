@@ -1,0 +1,3 @@
+<component name="DependencyValidationManager">
+  <scope name="main" pattern="!file[ProjectZomboidServerMannger]:src/main/java/com/chiliasmstudio/ProjectZomboidServerMannger/lib/Rcon//*" />
+</component>
