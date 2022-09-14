@@ -19,6 +19,7 @@
 package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.Config;
+import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
@@ -48,6 +49,8 @@ public class CheckUpdate extends Thread{
     public CheckUpdate(String serverName){
         unixTimestamp = Instant.now().getEpochSecond();
         this.serverName = serverName;
+        ServerConfig s = new ServerConfig();
+        s.getServerName();
     }
 
     public void run(){
