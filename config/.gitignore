@@ -1,2 +1,6 @@
-#ignored config.properties
+# Ignored config.properties.
 /config.properties
+
+# Ignored all except config.properties in servers folder.
+/servers/*
+!/servers/server_example.properties
