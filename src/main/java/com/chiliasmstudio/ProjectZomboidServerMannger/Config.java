@@ -20,6 +20,8 @@ package com.chiliasmstudio.ProjectZomboidServerMannger;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class Config {
@@ -47,11 +49,21 @@ public class Config {
         if(SteamKey ==null|| SteamKey.isEmpty())
             throw new Exception("SteamKey not found!");
 
+        String ServersLine = properties.getProperty("Servers","");
+        Servers.addAll(Arrays.asList(ServersLine.split(";")));
+        if(Servers == null|| Servers.isEmpty())
+            throw new Exception("Servers not found!");
+
+
     }
+
     /** Token of discord bot. */
     public static String DiscordToken = "";
 
     /** Steam Web API key. */
     public static String SteamKey = "";
+
+    /** Servers to manage. */
+    public static ArrayList<String> Servers = new ArrayList<>();
 
 }
