@@ -38,6 +38,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 public class CheckUpdate extends Thread{
     // Last check time.
@@ -156,7 +157,7 @@ public class CheckUpdate extends Thread{
      * Return formatted time with yyyy/MM/dd HH:mm:ss
      * @param unixTimestamp Unix timestamp.
      * */
-    public static String formattedDate(Long unixTimestamp){
+    public String formattedDate(Long unixTimestamp){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Instant instant = Instant.ofEpochSecond(unixTimestamp);
         Date date = Date.from(instant);
@@ -167,7 +168,7 @@ public class CheckUpdate extends Thread{
      * Send Message to console.
      * @param obj Message to send.
      * */
-    public static void SendLog(Object obj){
+    public void SendLog(Object obj){
         System.out.println(obj);
     }
 }
