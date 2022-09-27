@@ -20,6 +20,8 @@ package com.chiliasmstudio.ProjectZomboidServerMannger;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdate;
 
+import java.util.Scanner;
+
 import static com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot.initialization_Main;
 
 public class main {
@@ -30,6 +32,18 @@ public class main {
         CheckUpdate updater1 = new CheckUpdate("TestNet 2");
         updater1.start();
 
+        Scanner scan = new Scanner( System.in );
+
+        while (true) {
+            String message = scan.nextLine();
+            System.out.printf( "string \"%s\" received...\n", message );
+            System.out.flush();
+            System.err.flush();
+            if ( message.equals( "end" ) ) {
+                break;
+            }
+
+        }
 
     }
 }

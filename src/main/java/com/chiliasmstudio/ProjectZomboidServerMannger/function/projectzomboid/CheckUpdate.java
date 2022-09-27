@@ -33,6 +33,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -56,6 +59,14 @@ public class CheckUpdate extends Thread{
 
     public void run(){
         try {
+
+            try {
+                ProcessBuilder server = new ProcessBuilder("cmd", "/c start StartServer64.bat").directory(new File("C:\\Users\\paul0\\Downloads\\workzone"));
+                Process p = server.start();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
             System.out.println(unixTimestamp);
             SendLog(unixTimestamp);
             SendLog(formattedDate(unixTimestamp));
@@ -159,6 +170,7 @@ public class CheckUpdate extends Thread{
      * */
     public String formattedDate(Long unixTimestamp){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        dateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().toZoneId()));
         Instant instant = Instant.ofEpochSecond(unixTimestamp);
         Date date = Date.from(instant);
         return dateFormat.format(date);
@@ -170,5 +182,4 @@ public class CheckUpdate extends Thread{
      * */
     public void SendLog(Object obj){
         System.out.println(obj);
-    }
-}
+    }}

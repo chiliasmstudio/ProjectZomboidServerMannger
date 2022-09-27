@@ -49,6 +49,8 @@ public class ServerConfig {
         if(ServerIP == null || ServerIP.isEmpty())
             throw new Exception("ServerIP not found!");
 
+        ServerIP = properties.getProperty("TimeZone", "");
+
     }
 
 
@@ -57,14 +59,15 @@ public class ServerConfig {
     private String ServerName = "";
     /** Server IP. */
     @Getter
-    public static String ServerIP = "";
+    private String ServerIP = "";
 
     /** Server name. */
     @Getter
     private String RconPort = "";
-    /** Server IP. */
+
+    /** Time zone. */
     @Getter
-    public static String Serv  = "";
+    private String TimeZone  = "";
 
 
 
