@@ -41,6 +41,7 @@ public class ServerConfig {
             throw new IOException("Fail to load server config file!");
         }
 
+        //-------- Basic -------
         ServerName = properties.getProperty("ServerName", "");
         if(ServerName == null || ServerName.isEmpty())
             throw new Exception("ServerName not found!");
@@ -49,25 +50,67 @@ public class ServerConfig {
         if(ServerIP == null || ServerIP.isEmpty())
             throw new Exception("ServerIP not found!");
 
-        ServerIP = properties.getProperty("TimeZone", "");
+        TimeZone = properties.getProperty("TimeZone", "");
+
+        //-------- Rcon --------
+        RconPort = properties.getProperty("RconPort", "");
+        if(RconPort == null || RconPort.isEmpty())
+            throw new Exception("RconPort not found!");
+
+        RconPassword = properties.getProperty("RconPassword", "");
+        if(RconPassword == null || RconPassword.isEmpty())
+            throw new Exception("RconPassword not found!");
+
+        //-------- Discord --------
+        DiscordChannel = Long.valueOf(properties.getProperty("DiscordChannel", ""));
+
+        //-------- Directory --------
+        ServerDirectory = properties.getProperty("ServerDirectory", "");
+        if(ServerDirectory == null || ServerDirectory.isEmpty())
+            throw new Exception("ServerDirectory not found!");
+
+        ServerStartupScrip = properties.getProperty("ServerStartupScrip", "");
+        if(ServerStartupScrip == null || ServerStartupScrip.isEmpty())
+            throw new Exception("ServerStartupScrip not found!");
+
 
     }
 
 
+    //-------- Basic --------
     /** Server name. */
     @Getter
     private String ServerName = "";
-    /** Server IP. */
+    /** Server ip. */
     @Getter
     private String ServerIP = "";
 
-    /** Server name. */
+    /** Server time zone. */
+    @Getter
+    private String TimeZone  = "";
+
+    //-------- Rcon --------
+    /** Rcon port. */
     @Getter
     private String RconPort = "";
 
-    /** Time zone. */
+    /** Rcon password. */
     @Getter
-    private String TimeZone  = "";
+    private String RconPassword = "";
+
+    //-------- Discord --------
+    /** Discord Channel that send notify. (optional). */
+    @Getter
+    private Long DiscordChannel  = 0L;
+
+    //-------- Directory --------
+    /** Directory of server. */
+    @Getter
+    private String ServerDirectory  = "";
+
+    /** Directory of server startup bat/sh file. */
+    @Getter
+    private String ServerStartupScrip  = "";
 
 
 
