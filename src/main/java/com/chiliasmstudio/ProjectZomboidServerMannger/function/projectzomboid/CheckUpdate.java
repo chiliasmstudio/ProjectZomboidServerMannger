@@ -59,9 +59,9 @@ public class CheckUpdate extends Thread{
 
     public void run(){
         try {
-
+            // Start Project Zomboid server.
             try {
-                ProcessBuilder server = new ProcessBuilder("cmd", "/c start StartServer64.bat").directory(new File("C:\\Users\\paul0\\Downloads\\workzone"));
+                ProcessBuilder server = new ProcessBuilder("cmd", "/c start StartServer64.bat").directory(new File("C:\\Users\\paul\\Downloads"));
                 Process p = server.start();
             }catch (IOException e){
                 e.printStackTrace();
