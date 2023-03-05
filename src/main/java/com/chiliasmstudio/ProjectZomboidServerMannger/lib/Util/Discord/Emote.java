@@ -16,7 +16,10 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util;
+package com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Discord;
 
-public class SteamAPI {
+public class Emote {
+    public static final String Logo_ProjectZomboid = "<:Logo_ProjectZomboid:1004025758664097933>";//<:pz:963361244436381716>
 }
+
+

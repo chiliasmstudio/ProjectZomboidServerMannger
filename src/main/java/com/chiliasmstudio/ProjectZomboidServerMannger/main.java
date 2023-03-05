@@ -19,18 +19,48 @@
 package com.chiliasmstudio.ProjectZomboidServerMannger;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdate;
+import org.apache.commons.lang3.SystemUtils;
 
+import java.io.File;
 import java.util.Scanner;
 
 import static com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot.initialization_Main;
 
 public class main {
+    public static CheckUpdate[] checkUpdates = new CheckUpdate[30];
+
     public static void main(String[] args) throws Exception {
+        if (SystemUtils.IS_OS_WINDOWS) {
+            System.out.println("[INFO]Operating system: Windows");
+        } else if (SystemUtils.IS_OS_MAC) {
+            System.out.println("[INFO]Operating system: macOS");
+        } else if (SystemUtils.IS_OS_LINUX) {
+            System.out.println("[INFO] Operating system: Linux");
+        }else {
+            System.out.println("[ERROR]Unknown operating system");
+            throw new RuntimeException("Unknown operating system");
+        }
         Config.LoadConfig(null);
         initialization_Main(Config.DiscordToken);
+        Thread.sleep(5000L);
 
-        CheckUpdate updater1 = new CheckUpdate("TestNet 2");
-        updater1.start();
+        File folder = new File(".//config//servers");
+        File[] listOfFiles = folder.listFiles();
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile() && listOfFiles[i].getName().endsWith(".properties")&& !listOfFiles[i].getName().equals("server_example.properties")) {
+                System.out.println("[Config] find server config: " + listOfFiles[i].getName());
+                CheckUpdate updater = new CheckUpdate(listOfFiles[i].getName());
+                checkUpdates[i] = updater;
+            }
+        }
+        for (CheckUpdate servers:checkUpdates){
+            if(servers!=null){
+                servers.start();
+                Thread.sleep(1000L);
+            }
+        }
+
+
 
         Scanner scan = new Scanner( System.in );
 

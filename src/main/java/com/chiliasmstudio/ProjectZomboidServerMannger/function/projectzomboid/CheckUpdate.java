@@ -20,22 +20,15 @@ package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.Config;
 import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.HttpEntity;
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam.SteamAPI;
+import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
+import org.apache.commons.lang3.SystemUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -47,128 +40,71 @@ public class CheckUpdate extends Thread{
     // Last check time.
     private long unixTimestamp = 0L;
     // Name of server.
-    private String serverName = "";
-
-
-    public CheckUpdate(String serverName){
-        unixTimestamp = Instant.now().getEpochSecond();
-        this.serverName = serverName;
-        ServerConfig s = new ServerConfig();
-        s.getServerName();
+    private static ServerConfig serverConfig = new ServerConfig();
+    
+    public CheckUpdate(String configDir) throws Exception {
+        ServerConfig serverConfig = new ServerConfig();
+        serverConfig.LoadConfig("config//servers//"+configDir);
+        this.serverConfig = serverConfig;
     }
 
     public void run(){
         try {
             // Start Project Zomboid server.
             try {
-                ProcessBuilder server = new ProcessBuilder("cmd", "/c start StartServer64.bat").directory(new File("C:\\Users\\paul\\Downloads"));
+                ProcessBuilder server = null;
+                if(serverConfig.isSSH()){
+                    throw new RuntimeException("Error");
+                } else if (SystemUtils.IS_OS_WINDOWS) {
+                    server = new ProcessBuilder("cmd", "/c start "+serverConfig.getServerStartupScrip()).directory(new File(serverConfig.getServerDirectory()));
+                } else if (SystemUtils.IS_OS_MAC) {
+                    throw new RuntimeException("Error");
+                } else if (SystemUtils.IS_OS_LINUX) {
+                    server = new ProcessBuilder("xterm", "-e", "sh your_script.sh").directory(new File(serverConfig.getServerDirectory()));
+                }
+
                 Process p = server.start();
+                MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName()+" is booting now.").queue();
             }catch (IOException e){
                 e.printStackTrace();
             }
 
-            System.out.println(unixTimestamp);
-            SendLog(unixTimestamp);
-            SendLog(formattedDate(unixTimestamp));
-            System.out.println(formattedDate(unixTimestamp));
-
-            Thread.sleep(2000L);
-            JSONArray itemList = GetPublishedFileDetails(CheckUpdate.GetCollectionDetail(2857565347L));
-            // Foreach workshop item
-            for (int i = 0; i < itemList.length(); i++){
-                try {
-                    JSONObject item = itemList.getJSONObject(i);
-                    //System.out.println(i + " " + item.get("title"));
-                }catch (JSONException e){
-                    System.out.println("Error on Check");
+            while (true){
+                unixTimestamp = Instant.now().getEpochSecond();
+                SendLog(unixTimestamp);
+                SendLog(formattedDate(unixTimestamp));
+                JSONArray itemList = SteamAPI.GetPublishedFileDetails(SteamAPI.GetCollectionDetail(2857565347L));
+                // Foreach workshop item
+                int error = 0;
+                for (int i = 0; i < itemList.length(); i++){
+                    try {
+                        JSONObject item = itemList.getJSONObject(i);
+                        if(item.getLong("time_updated")>unixTimestamp){
+                            //TODO restart server
+                        }
+                        //System.out.println(i + " " + item.get("title"));
+                    }catch (JSONException e){
+                        error++;
+                    }
                 }
-
+                SendLog(error + " items error on check");
+                Thread.sleep(60000L);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
-    /**
-     * Get and return workshop item ids in collection.
-     * */
-    public static ArrayList<Long> GetCollectionDetail(Long collectionID){
-        // Send Post to steam api.
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1");
-        List<NameValuePair> nvps = new ArrayList<>();
-        nvps.add(new BasicNameValuePair("key", Config.SteamKey));
-        nvps.add(new BasicNameValuePair("format", "json"));
-        nvps.add(new BasicNameValuePair("collectioncount", "1"));
-        nvps.add(new BasicNameValuePair("publishedfileids[0]", collectionID.toString()));
-        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-        ArrayList<Long> itemList = new ArrayList<Long>();
-        try{
-            CloseableHttpResponse response2 = httpclient.execute(httpPost);
-            System.out.println("GetCollectionDetail with " + response2.getCode() + " " + response2.getReasonPhrase());
-            HttpEntity entity2 = response2.getEntity();
-            // Response form steam as string.
-            String response = EntityUtils.toString(response2.getEntity(), "UTF-8");
 
-            // Return item ids in collection.
-            JSONObject obj = new JSONObject(response);
-            JSONArray collectiondetails = obj
-                    .getJSONObject("response")
-                    .getJSONArray("collectiondetails")
-                    .getJSONObject(0)
-                    .getJSONArray("children");
-            System.out.println(collectionID + " include " + collectiondetails.length() + " items");
-            for (int i = 0; i < collectiondetails.length(); i++)
-            {
-                String publishedfileid = collectiondetails.getJSONObject(i).getString("publishedfileid");
-                itemList.add(Long.parseLong(publishedfileid));
-            }
-            EntityUtils.consume(entity2);
-            return itemList;
-        }catch (Exception e){
-            e.printStackTrace();
-            throw new RuntimeException("Error while GetCollectionDetail.");
-        }
 
-    }
 
-    public static JSONArray GetPublishedFileDetails(ArrayList<Long> itemList){
-        // Send Post to steam api.
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?");
-        List<NameValuePair> nvps = new ArrayList<>();
-        nvps.add(new BasicNameValuePair("key", Config.SteamKey));
-        nvps.add(new BasicNameValuePair("format", "json"));
-        nvps.add(new BasicNameValuePair("itemcount", String.valueOf(itemList.size())));
-        for (int i = 0; i < itemList.size(); i++)
-            nvps.add(new BasicNameValuePair("publishedfileids[" + i +"]", itemList.get(i).toString()));
-        httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
-        try{
-            CloseableHttpResponse response2 = httpclient.execute(httpPost);
-            System.out.println("GetPublishedFileDetails with " + response2.getCode() + " " + response2.getReasonPhrase());
-            HttpEntity entity2 = response2.getEntity();
-
-            // Response form steam as string.
-            String response = EntityUtils.toString(response2.getEntity(), "UTF-8");
-            JSONObject obj = new JSONObject(response);
-            JSONArray publishedfiledetails = obj
-                    .getJSONObject("response")
-                    .getJSONArray("publishedfiledetails");
-
-            EntityUtils.consume(entity2);
-            return publishedfiledetails;
-        }catch (Exception e){
-            throw new RuntimeException(e);
-        }
-
-    }
 
     /**
      * Return formatted time with yyyy/MM/dd HH:mm:ss
      * @param unixTimestamp Unix timestamp.
      * */
-    public String formattedDate(Long unixTimestamp){
+    private String formattedDate(Long unixTimestamp){
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         dateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().toZoneId()));
         Instant instant = Instant.ofEpochSecond(unixTimestamp);
@@ -180,6 +116,6 @@ public class CheckUpdate extends Thread{
      * Send Message to console.
      * @param obj Message to send.
      * */
-    public void SendLog(Object obj){
-        System.out.println(obj);
+    private void SendLog(Object obj){
+        System.out.println("["+serverConfig.getServerName()+"] "+obj);
     }}

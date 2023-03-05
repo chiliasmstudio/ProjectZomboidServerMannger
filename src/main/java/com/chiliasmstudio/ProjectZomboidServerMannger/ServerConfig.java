@@ -50,11 +50,24 @@ public class ServerConfig {
         if(ServerIP == null || ServerIP.isEmpty())
             throw new Exception("ServerIP not found!");
 
+        SteamCollections = Long.valueOf(properties.getProperty("SteamCollections", ""));
+        if(SteamCollections < 0)
+            throw new Exception("SteamCollections not found!");
+
         TimeZone = properties.getProperty("TimeZone", "");
 
+        //-------- SSH --------
+        SSH = Boolean.parseBoolean(properties.getProperty("SSH", ""));
+        if(SSH){
+            SSH_Command = properties.getProperty("SSH_Command", "");
+            if(SSH_Command == null || SSH_Command.isEmpty())
+                throw new Exception("SSH_Command not found!");
+        }
+
+
         //-------- Rcon --------
-        RconPort = properties.getProperty("RconPort", "");
-        if(RconPort == null || RconPort.isEmpty())
+        RconPort = Integer.parseInt(properties.getProperty("RconPort", ""));
+        if(RconPort < 0 || RconPort > 65535)
             throw new Exception("RconPort not found!");
 
         RconPassword = properties.getProperty("RconPassword", "");
@@ -85,14 +98,28 @@ public class ServerConfig {
     @Getter
     private String ServerIP = "";
 
+    /** Steam collections id. */
+    @Getter
+    private Long SteamCollections = -1L;
+
     /** Server time zone. */
     @Getter
     private String TimeZone  = "";
 
+    //-------- SSH --------
+
+    /** Using ssh. */
+    @Getter
+    private boolean SSH = false;
+
+    /** Command to run in ssh */
+    @Getter
+    private String SSH_Command = "";
+
     //-------- Rcon --------
     /** Rcon port. */
     @Getter
-    private String RconPort = "";
+    private int RconPort = -1;
 
     /** Rcon password. */
     @Getter

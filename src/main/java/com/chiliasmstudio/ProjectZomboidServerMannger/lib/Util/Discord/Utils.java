@@ -1,6 +1,6 @@
 /*
  * < ProjectZomboidServerMannger - Project Zomboid server manage software >
- *     Copyright (C) 2022-2022 chiliasmstudio
+ *     Copyright (C) 2022-2023 chiliasmstudio
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.lib;
+package com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Discord;
 
 import net.dv8tion.jda.api.entities.Message;
 
