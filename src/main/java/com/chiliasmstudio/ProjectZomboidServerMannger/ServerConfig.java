@@ -1,6 +1,6 @@
 /*
  * < ProjectZomboidServerMannger - Project Zomboid server manage software >
- *     Copyright (C) 2022-2022 chiliasmstudio
+ *     Copyright (C) 2022-2023 chiliasmstudio
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,9 +18,7 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger;
 
-import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -29,11 +27,12 @@ import java.util.Properties;
 public class ServerConfig {
     /**
      * Load config value form config.properties.
+     *
      * @param configFileDir Directory of config.
      * @throws IOException When fail to load config.
-     * @throws Exception When required argument is invalid.
-    */
-    public void LoadConfig(String configFileDir) throws Exception{
+     * @throws Exception   When required argument is invalid.
+     */
+    public void LoadConfig(String configFileDir) throws Exception {
         Properties properties = new Properties();
         try {
             properties.load(new FileInputStream(configFileDir));
@@ -43,35 +42,35 @@ public class ServerConfig {
 
         //-------- Basic -------
         ServerName = properties.getProperty("ServerName", "");
-        if(ServerName == null || ServerName.isEmpty())
+        if (ServerName == null || ServerName.isEmpty())
             throw new Exception("ServerName not found!");
 
         ServerIP = properties.getProperty("ServerIP", "");
-        if(ServerIP == null || ServerIP.isEmpty())
+        if (ServerIP == null || ServerIP.isEmpty())
             throw new Exception("ServerIP not found!");
 
         SteamCollections = Long.valueOf(properties.getProperty("SteamCollections", ""));
-        if(SteamCollections < 0)
+        if (SteamCollections < 0)
             throw new Exception("SteamCollections not found!");
 
         TimeZone = properties.getProperty("TimeZone", "");
 
         //-------- SSH --------
         SSH = Boolean.parseBoolean(properties.getProperty("SSH", ""));
-        if(SSH){
+        if (SSH) {
             SSH_Command = properties.getProperty("SSH_Command", "");
-            if(SSH_Command == null || SSH_Command.isEmpty())
+            if (SSH_Command == null || SSH_Command.isEmpty())
                 throw new Exception("SSH_Command not found!");
         }
 
 
         //-------- Rcon --------
         RconPort = Integer.parseInt(properties.getProperty("RconPort", ""));
-        if(RconPort < 0 || RconPort > 65535)
+        if (RconPort < 0 || RconPort > 65535)
             throw new Exception("RconPort not found!");
 
         RconPassword = properties.getProperty("RconPassword", "");
-        if(RconPassword == null || RconPassword.isEmpty())
+        if (RconPassword == null || RconPassword.isEmpty())
             throw new Exception("RconPassword not found!");
 
         //-------- Discord --------
@@ -79,11 +78,11 @@ public class ServerConfig {
 
         //-------- Directory --------
         ServerDirectory = properties.getProperty("ServerDirectory", "");
-        if(ServerDirectory == null || ServerDirectory.isEmpty())
+        if (ServerDirectory == null || ServerDirectory.isEmpty())
             throw new Exception("ServerDirectory not found!");
 
         ServerStartupScrip = properties.getProperty("ServerStartupScrip", "");
-        if(ServerStartupScrip == null || ServerStartupScrip.isEmpty())
+        if (ServerStartupScrip == null || ServerStartupScrip.isEmpty())
             throw new Exception("ServerStartupScrip not found!");
 
 
@@ -91,54 +90,75 @@ public class ServerConfig {
 
 
     //-------- Basic --------
-    /** Server name. */
+    /**
+     * Server name.
+     */
     @Getter
     private String ServerName = "";
-    /** Server ip. */
+    /**
+     * Server ip.
+     */
     @Getter
     private String ServerIP = "";
 
-    /** Steam collections id. */
+    /**
+     * Steam collections id.
+     */
     @Getter
     private Long SteamCollections = -1L;
 
-    /** Server time zone. */
+    /**
+     * Server time zone.
+     */
     @Getter
-    private String TimeZone  = "";
+    private String TimeZone = "";
 
     //-------- SSH --------
 
-    /** Using ssh. */
+    /**
+     * Using ssh.
+     */
     @Getter
     private boolean SSH = false;
 
-    /** Command to run in ssh */
+    /**
+     * Command to run in ssh
+     */
     @Getter
     private String SSH_Command = "";
 
     //-------- Rcon --------
-    /** Rcon port. */
+    /**
+     * Rcon port.
+     */
     @Getter
     private int RconPort = -1;
 
-    /** Rcon password. */
+    /**
+     * Rcon password.
+     */
     @Getter
     private String RconPassword = "";
 
     //-------- Discord --------
-    /** Discord Channel that send notify. (optional). */
+    /**
+     * Discord Channel that send notify. (optional).
+     */
     @Getter
-    private Long DiscordChannel  = 0L;
+    private Long DiscordChannel = 0L;
 
     //-------- Directory --------
-    /** Directory of server. */
+    /**
+     * Directory of server.
+     */
     @Getter
-    private String ServerDirectory  = "";
+    private String ServerDirectory = "";
 
-    /** Directory of server startup bat/sh file. */
+    /**
+     * Directory of server startup bat/sh file.
+     */
     @Getter
-    private String ServerStartupScrip  = "";
-
+    private String ServerStartupScrip = "";
 
 
 }

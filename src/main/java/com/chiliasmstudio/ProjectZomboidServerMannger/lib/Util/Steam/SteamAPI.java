@@ -38,8 +38,8 @@ public class SteamAPI {
 
     /**
      * Get and return workshop item ids in collection.
-     * */
-    public static ArrayList<Long> GetCollectionDetail(Long collectionID){
+     */
+    public static ArrayList<Long> GetCollectionDetail(Long collectionID) {
         // Send Post to steam api.
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1");
@@ -50,9 +50,9 @@ public class SteamAPI {
         nvps.add(new BasicNameValuePair("publishedfileids[0]", collectionID.toString()));
         httpPost.setEntity(new UrlEncodedFormEntity(nvps));
         ArrayList<Long> itemList = new ArrayList<Long>();
-        try{
+        try {
             CloseableHttpResponse response2 = httpclient.execute(httpPost);
-            System.out.println("GetCollectionDetail with " + response2.getCode() + " " + response2.getReasonPhrase());
+            //System.out.println("GetCollectionDetail with " + response2.getCode() + " " + response2.getReasonPhrase());
             HttpEntity entity2 = response2.getEntity();
             // Response form steam as string.
             String response = EntityUtils.toString(response2.getEntity(), "UTF-8");
@@ -64,24 +64,24 @@ public class SteamAPI {
                     .getJSONArray("collectiondetails")
                     .getJSONObject(0)
                     .getJSONArray("children");
-            System.out.println(collectionID + " include " + collectiondetails.length() + " items");
-            for (int i = 0; i < collectiondetails.length(); i++)
-            {
+            //System.out.println(collectionID + " include " + collectiondetails.length() + " items");
+            for (int i = 0; i < collectiondetails.length(); i++) {
                 String publishedfileid = collectiondetails.getJSONObject(i).getString("publishedfileid");
                 itemList.add(Long.parseLong(publishedfileid));
             }
             EntityUtils.consume(entity2);
             return itemList;
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Error while GetCollectionDetail.");
         }
 
     }
+
     /**
      * Get and return workshop item info in json.
-     * */
-    public static JSONArray GetPublishedFileDetails(ArrayList<Long> itemList){
+     */
+    public static JSONArray GetPublishedFileDetails(ArrayList<Long> itemList) {
         // Send Post to steam api.
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/?");
@@ -90,12 +90,12 @@ public class SteamAPI {
         nvps.add(new BasicNameValuePair("format", "json"));
         nvps.add(new BasicNameValuePair("itemcount", String.valueOf(itemList.size())));
         for (int i = 0; i < itemList.size(); i++)
-            nvps.add(new BasicNameValuePair("publishedfileids[" + i +"]", itemList.get(i).toString()));
+            nvps.add(new BasicNameValuePair("publishedfileids[" + i + "]", itemList.get(i).toString()));
         httpPost.setEntity(new UrlEncodedFormEntity(nvps));
 
-        try{
+        try {
             CloseableHttpResponse response2 = httpclient.execute(httpPost);
-            System.out.println("GetPublishedFileDetails with " + response2.getCode() + " " + response2.getReasonPhrase());
+            //System.out.println("GetPublishedFileDetails with " + response2.getCode() + " " + response2.getReasonPhrase());
             HttpEntity entity2 = response2.getEntity();
 
             // Response form steam as string.
@@ -107,7 +107,7 @@ public class SteamAPI {
 
             EntityUtils.consume(entity2);
             return publishedfiledetails;
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 

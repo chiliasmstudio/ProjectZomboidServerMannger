@@ -1,6 +1,6 @@
 /*
  * < ProjectZomboidServerMannger - Project Zomboid server manage software >
- *     Copyright (C) 2022-2022 chiliasmstudio
+ *     Copyright (C) 2022-2023 chiliasmstudio
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,8 +18,9 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.Config;
 import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.Rcon;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.ex.AuthenticationException;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam.SteamAPI;
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
 import org.apache.commons.lang3.SystemUtils;
@@ -29,93 +30,152 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.TimeZone;
+import java.util.Collections;
 
-public class CheckUpdate extends Thread{
+public class CheckUpdate extends Thread {
     // Last check time.
     private long unixTimestamp = 0L;
-    // Name of server.
+    // Server config file.
     private static ServerConfig serverConfig = new ServerConfig();
-    
+
     public CheckUpdate(String configDir) throws Exception {
-        ServerConfig serverConfig = new ServerConfig();
-        serverConfig.LoadConfig("config//servers//"+configDir);
-        this.serverConfig = serverConfig;
+        serverConfig.LoadConfig("config//servers//" + configDir);
     }
 
-    public void run(){
+    public void run() {
         try {
-            // Start Project Zomboid server.
-            try {
-                ProcessBuilder server = null;
-                if(serverConfig.isSSH()){
-                    throw new RuntimeException("Error");
-                } else if (SystemUtils.IS_OS_WINDOWS) {
-                    server = new ProcessBuilder("cmd", "/c start "+serverConfig.getServerStartupScrip()).directory(new File(serverConfig.getServerDirectory()));
-                } else if (SystemUtils.IS_OS_MAC) {
-                    throw new RuntimeException("Error");
-                } else if (SystemUtils.IS_OS_LINUX) {
-                    server = new ProcessBuilder("xterm", "-e", "sh your_script.sh").directory(new File(serverConfig.getServerDirectory()));
-                }
-
-                Process p = server.start();
-                MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName()+" is booting now.").queue();
-            }catch (IOException e){
-                e.printStackTrace();
-            }
-
-            while (true){
-                unixTimestamp = Instant.now().getEpochSecond();
-                SendLog(unixTimestamp);
-                SendLog(formattedDate(unixTimestamp));
+            if (!startServer())
+                throw new RuntimeException();
+            unixTimestamp = Instant.now().getEpochSecond();
+            while (true) {
+                JSONArray updateList = new JSONArray();
+                SendLog(formattedDate(unixTimestamp) + " (" + unixTimestamp + ")" + " start check.");
                 JSONArray itemList = SteamAPI.GetPublishedFileDetails(SteamAPI.GetCollectionDetail(2857565347L));
                 // Foreach workshop item
+                boolean needRestart = false;
                 int error = 0;
-                for (int i = 0; i < itemList.length(); i++){
+                for (int i = 0; i < itemList.length(); i++) {
                     try {
                         JSONObject item = itemList.getJSONObject(i);
-                        if(item.getLong("time_updated")>unixTimestamp){
-                            //TODO restart server
+                        if (item.getLong("time_updated") > unixTimestamp) {
+                            SendLog("Need update: " + item.get("title"));
+                            updateList.put(item);
+                            needRestart = true;
                         }
-                        //System.out.println(i + " " + item.get("title"));
-                    }catch (JSONException e){
+                    } catch (JSONException e) {
                         error++;
                     }
                 }
-                SendLog(error + " items error on check");
-                Thread.sleep(60000L);
+                SendLog(error + " items error on check.");
+                if (needRestart) {
+                    MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 5 minute.").queue();
+                    MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("Mod to update:").queue();
+                    for (int i = 0; i < updateList.length(); i++) {
+                        JSONObject element = updateList.getJSONObject(i);
+                        String message = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + element.get("publishedfileid");
+                        MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("<"+message + ">").setEmbeds(Collections.emptyList()).queue();
+                    }
+                    Thread.sleep(300*1000L);
+                    MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
+                    SendLog("Stopping server.");
+                    if (closeServer()) {
+                        Thread.sleep(30 * 1000L);
+                        SendLog("Server has stop.");
+                        SendLog("Rebooting server.");
+                        if (!startServer())
+                            throw new RuntimeException();
+                    } else
+                        throw new RuntimeException();
+                    Thread.sleep(300 * 1000L);
+                }
+                unixTimestamp = Instant.now().getEpochSecond();
+                Thread.sleep(30 * 1000L);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
 
+    /**
+     * Start the server and send Discord notification
+     *
+     * @return true if server is started successfully, false otherwise
+     */
+    private static boolean startServer() {
+        try {
+            ProcessBuilder server = null;
+            if (serverConfig.isSSH()) {
+                throw new RuntimeException("Error");
+            } else if (SystemUtils.IS_OS_WINDOWS) {
+                server = new ProcessBuilder("cmd", "/c start " + serverConfig.getServerStartupScrip()).directory(new File(serverConfig.getServerDirectory()));
+            } else if (SystemUtils.IS_OS_MAC) {
+                throw new RuntimeException("Error");
+            } else if (SystemUtils.IS_OS_LINUX) {
+                server = new ProcessBuilder("xterm", "-e", "sh your_script.sh").directory(new File(serverConfig.getServerDirectory()));
+            }
 
-
-
+            Process p = server.start();
+            MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " is booting now.").queue();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
 
     /**
-     * Return formatted time with yyyy/MM/dd HH:mm:ss
-     * @param unixTimestamp Unix timestamp.
-     * */
-    private String formattedDate(Long unixTimestamp){
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        dateFormat.setTimeZone(TimeZone.getTimeZone(TimeZone.getDefault().toZoneId()));
+     * Sends a "quit" command to the server via Rcon and disconnects.
+     * Returns true if successful, false if there was an error.
+     *
+     * @return true if the quit command was successfully sent, false otherwise
+     */
+    private static boolean closeServer() {
+        try {
+            Rcon rcon = new Rcon(serverConfig.getServerIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
+            rcon.command("quit");
+            rcon.disconnect();
+            MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " has stop.").queue();
+            return true;
+        } catch (IOException e) {
+            // Unable to connect to the server
+            e.printStackTrace();
+            return false;
+        } catch (AuthenticationException e) {
+            // Authentication failed
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+
+    /**
+     * Returns a formatted date string with the timezone set in serverConfig.
+     *
+     * @param unixTimestamp the Unix timestamp to format
+     * @return the formatted date string
+     */
+    private String formattedDate(Long unixTimestamp) {
+        ZoneId zoneId;
+        if (serverConfig.getTimeZone().equalsIgnoreCase("Auto"))
+            zoneId = ZoneId.systemDefault();
+        else
+            zoneId = ZoneId.of(serverConfig.getTimeZone());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(zoneId);
         Instant instant = Instant.ofEpochSecond(unixTimestamp);
-        Date date = Date.from(instant);
-        return dateFormat.format(date);
+        return formatter.format(instant);
     }
 
     /**
      * Send Message to console.
+     *
      * @param obj Message to send.
-     * */
-    private void SendLog(Object obj){
-        System.out.println("["+serverConfig.getServerName()+"] "+obj);
-    }}
+     */
+    private void SendLog(Object obj) {
+        System.out.println("[" + serverConfig.getServerName() + "] " + obj);
+    }
+}

@@ -1,6 +1,6 @@
 /*
  * < ProjectZomboidServerMannger - Project Zomboid server manage software >
- *     Copyright (C) 2022-2022 chiliasmstudio
+ *     Copyright (C) 2022-2023 chiliasmstudio
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,7 +18,6 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.HelloWorld;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -26,13 +25,14 @@ import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class MainBot {
     public static JDABuilder botBuilder_Main = null;
-    public static JDA bot_Main= null;
+    public static JDA bot_Main = null;
 
     /**
      * Initialization bot.
+     *
      * @param DiscordToken Token of discord bot.
-     * */
-    public static boolean initialization_Main(String DiscordToken){
+     */
+    public static boolean initialization_Main(String DiscordToken) {
         try {
             botBuilder_Main = JDABuilder.createDefault(DiscordToken);
             botBuilder_Main.setActivity(Activity.playing("Hello discord!"));
@@ -40,7 +40,7 @@ public class MainBot {
 
             botBuilder_Main.addEventListeners(new HelloWorld());
             bot_Main = botBuilder_Main.build();
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }

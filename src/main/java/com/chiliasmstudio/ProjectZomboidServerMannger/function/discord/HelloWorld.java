@@ -1,6 +1,6 @@
 /*
  * < ProjectZomboidServerMannger - Project Zomboid server manage software >
- *     Copyright (C) 2022-2022 chiliasmstudio
+ *     Copyright (C) 2022-2023 chiliasmstudio
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -18,18 +18,35 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord;
 
+import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
-public class HelloWorld extends ListenerAdapter {
+
+public class HelloWorld extends ListenerAdapter{
 
     /**
      * When received !Callrole will create role selection menu.
      */
-    public void onMessageReceived (MessageReceivedEvent event) {
-        if (event.getMessage().getContentStripped().equalsIgnoreCase("!Hello world")&&!event.getMember().getUser().isBot()){
-            event.getChannel().sendMessage( "Hello world!").queue();
+    public void onMessageReceived(MessageReceivedEvent event) {
+        if (event.getMessage().getContentStripped().equalsIgnoreCase("!Hello world") && !event.getMember().getUser().isBot()) {
+            event.getChannel().sendMessage("Hello world!").queue();
         }
     }
 
+    @Override
+    public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
+        if (event.getName().equals("helloworld")) {
+            event.reply("Hello world!").queue(); // reply immediately
+        }
+    }
+
+    @Override
+    public void onGuildReady(GuildReadyEvent event){
+        event.getGuild().updateCommands().addCommands(
+                Commands.slash("helloworld", "Say hello world!")
+        ).queue();
+    }
 }
