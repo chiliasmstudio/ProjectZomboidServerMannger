@@ -21,6 +21,7 @@ package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
 import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.Rcon;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.ex.AuthenticationException;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.SendCommand;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam.SteamAPI;
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
 import org.apache.commons.lang3.SystemUtils;
@@ -71,8 +72,10 @@ public class CheckUpdate extends Thread {
                     }
                 }
                 SendLog(error + " items error on check.");
+                unixTimestamp = Instant.now().getEpochSecond();
                 if (needRestart) {
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 5 minute.").queue();
+                    SendCommand.sendMessage("Restart in 5 minute.",serverConfig);
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("Mod to update:").queue();
                     for (int i = 0; i < updateList.length(); i++) {
                         JSONObject element = updateList.getJSONObject(i);
@@ -92,7 +95,6 @@ public class CheckUpdate extends Thread {
                         throw new RuntimeException();
                     Thread.sleep(300 * 1000L);
                 }
-                unixTimestamp = Instant.now().getEpochSecond();
                 Thread.sleep(30 * 1000L);
             }
         } catch (InterruptedException e) {
