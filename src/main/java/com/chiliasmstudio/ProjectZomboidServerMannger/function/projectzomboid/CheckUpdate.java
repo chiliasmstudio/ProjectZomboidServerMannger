@@ -24,6 +24,7 @@ import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.ex.Authentication
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.SendCommand;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam.SteamAPI;
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
+import lombok.Getter;
 import org.apache.commons.lang3.SystemUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,7 +41,7 @@ public class CheckUpdate extends Thread {
     // Last check time.
     private long unixTimestamp = 0L;
     // Server config file.
-    private static ServerConfig serverConfig = new ServerConfig();
+    private ServerConfig serverConfig = new ServerConfig();
 
     public CheckUpdate(String configDir) throws Exception {
         serverConfig.LoadConfig("config//servers//" + configDir);
@@ -53,7 +54,7 @@ public class CheckUpdate extends Thread {
             unixTimestamp = Instant.now().getEpochSecond();
             while (true) {
                 JSONArray updateList = new JSONArray();
-                SendLog(formattedDate(unixTimestamp) + " (" + unixTimestamp + ")" + " start check.");
+                SendLog(formattedDate(Instant.now().getEpochSecond()) + " (" + Instant.now().getEpochSecond() + ")" + " start check.");
                 JSONArray itemList = SteamAPI.GetPublishedFileDetails(SteamAPI.GetCollectionDetail(2857565347L));
                 // Foreach workshop item
                 boolean needRestart = false;
@@ -106,20 +107,31 @@ public class CheckUpdate extends Thread {
                     Thread.sleep(3*1000L);
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
                     SendLog("Stopping server.");
-                    if (closeServer()) {
-                        Thread.sleep(60 * 1000L);
-                        SendLog("Server has stop.");
-                        SendLog("Rebooting server.");
-                        if (!startServer())
-                            throw new RuntimeException();
-                    } else
-                        throw new RuntimeException();
+                    int attempts = 0;
+                    boolean success = false;
+                    while (attempts < 3 && !success) {
+                        try {
+                            if (closeServer()) {
+                                Thread.sleep(60 * 1000L);
+                                SendLog("Server has stop.");
+                                SendLog("Rebooting server.");
+                                success = true;
+                            } else
+                                throw new RuntimeException();
+                        } catch (RuntimeException e) {
+                            attempts++;
+                        }
+                    }
+
+                    if (!success) {
+                        throw new RuntimeException("Failed to execute code after 3 attempts");
+                    }
                     Thread.sleep(serverConfig.getRestartTime() * 1000L);
                 }
                 Thread.sleep(serverConfig.getCheckFrequency() * 1000L);
             }
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e);//TODO Log4j
         }
     }
 
@@ -128,7 +140,7 @@ public class CheckUpdate extends Thread {
      *
      * @return true if server is started successfully, false otherwise
      */
-    private static boolean startServer() {
+    private boolean startServer() {
         try {
             ProcessBuilder server = null;
             if (serverConfig.isSSH()) {
@@ -145,7 +157,7 @@ public class CheckUpdate extends Thread {
             MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " is booting now.").queue();
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace();//TODO Log4j
             return false;
         }
     }
@@ -157,7 +169,7 @@ public class CheckUpdate extends Thread {
      *
      * @return true if the quit command was successfully sent, false otherwise
      */
-    private static boolean closeServer() {
+    private boolean closeServer() {
         try {
             Rcon rcon = new Rcon(serverConfig.getServerIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
             rcon.command("quit");
@@ -166,11 +178,11 @@ public class CheckUpdate extends Thread {
             return true;
         } catch (IOException e) {
             // Unable to connect to the server
-            e.printStackTrace();
+            e.printStackTrace();//TODO Log4j
             return false;
         } catch (AuthenticationException e) {
             // Authentication failed
-            e.printStackTrace();
+            e.printStackTrace();//TODO Log4j
             return false;
         }
     }

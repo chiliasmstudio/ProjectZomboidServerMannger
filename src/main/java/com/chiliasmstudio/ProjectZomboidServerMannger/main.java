@@ -19,6 +19,8 @@
 package com.chiliasmstudio.ProjectZomboidServerMannger;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdate;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.Rcon;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.SendCommand;
 import net.dv8tion.jda.api.entities.Guild;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -46,7 +48,6 @@ public class main {
         initialization_Main(Config.DiscordToken);
         Thread.sleep(5000L);
 
-
         File folder = new File(".//config//servers");
         File[] listOfFiles = folder.listFiles();
         for (int i = 0; i < listOfFiles.length; i++) {
@@ -56,6 +57,7 @@ public class main {
                 checkUpdates[i] = updater;
             }
         }
+
         for (CheckUpdate servers : checkUpdates) {
             if (servers != null) {
                 servers.start();

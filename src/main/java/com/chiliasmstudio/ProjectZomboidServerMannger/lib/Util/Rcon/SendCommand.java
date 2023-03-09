@@ -42,11 +42,11 @@ public class SendCommand {
             return true;
         } catch (IOException e) {
             // Unable to connect to the server
-            e.printStackTrace();
+            e.printStackTrace();//TODO Log4j
             return false;
         } catch (AuthenticationException e) {
             // Authentication failed
-            e.printStackTrace();
+            e.printStackTrace();//TODO Log4j
             return false;
         }
     }

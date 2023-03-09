@@ -72,8 +72,8 @@ public class SteamAPI {
             EntityUtils.consume(entity2);
             return itemList;
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error while GetCollectionDetail.");
+            e.printStackTrace();//TODO Log4j
+            return null;
         }
 
     }
@@ -108,7 +108,8 @@ public class SteamAPI {
             EntityUtils.consume(entity2);
             return publishedfiledetails;
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();//TODO Log4j
+            return null;
         }
 
     }
