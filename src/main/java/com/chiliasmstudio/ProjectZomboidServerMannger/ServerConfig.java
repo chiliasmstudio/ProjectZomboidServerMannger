@@ -55,6 +55,14 @@ public class ServerConfig {
 
         TimeZone = properties.getProperty("TimeZone", "");
 
+        RestartTime = Long.valueOf(properties.getProperty("RestartTime", ""));
+        if (RestartTime <= 0)
+            throw new Exception("RestartTime not found!");
+
+        CheckFrequency = Long.valueOf(properties.getProperty("CheckFrequency", ""));
+        if (CheckFrequency <= 0)
+            throw new Exception("CheckFrequency not found!");
+
         //-------- SSH --------
         SSH = Boolean.parseBoolean(properties.getProperty("SSH", ""));
         if (SSH) {
@@ -112,6 +120,18 @@ public class ServerConfig {
      */
     @Getter
     private String TimeZone = "";
+
+    /**
+     * Restart time.
+     */
+    @Getter
+    private Long RestartTime = -1L;
+
+    /**
+     * CheckFrequency.
+     */
+    @Getter
+    private Long CheckFrequency = -1L;
 
     //-------- SSH --------
 

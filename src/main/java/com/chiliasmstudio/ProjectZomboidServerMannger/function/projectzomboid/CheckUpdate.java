@@ -21,6 +21,7 @@ package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
 import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.Rcon;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.ex.AuthenticationException;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.SendCommand;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam.SteamAPI;
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
 import org.apache.commons.lang3.SystemUtils;
@@ -73,13 +74,36 @@ public class CheckUpdate extends Thread {
                 SendLog(error + " items error on check.");
                 if (needRestart) {
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 5 minute.").queue();
+                    SendCommand.sendMessage("Server need reboot! restart in 5 minute.",serverConfig);
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("Mod to update:").queue();
                     for (int i = 0; i < updateList.length(); i++) {
                         JSONObject element = updateList.getJSONObject(i);
                         String message = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + element.get("publishedfileid");
                         MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("<"+message + ">").setEmbeds(Collections.emptyList()).queue();
                     }
-                    Thread.sleep(300*1000L);
+                    Thread.sleep(60*1000L);// 4 minute.
+                    SendCommand.sendMessage("Server need reboot! restart in 4 minute.",serverConfig);
+                    Thread.sleep(60*1000L);// 3 minute.
+                    SendCommand.sendMessage("Server need reboot! restart in 3 minute.",serverConfig);
+                    Thread.sleep(60*1000L);// 2 minute.
+                    SendCommand.sendMessage("Server need reboot! restart in 2 minute.",serverConfig);
+                    Thread.sleep(60*1000L);// 1 minute.
+                    SendCommand.sendMessage("Server need reboot! restart in 1 minute.",serverConfig);
+                    Thread.sleep(30*1000L);// 30 second.
+                    SendCommand.sendMessage("Server need reboot! restart in 30 second.",serverConfig);
+                    Thread.sleep(20*1000L);// 10 second.
+                    SendCommand.sendMessage("Server need reboot! restart in 10 second.",serverConfig);
+                    Thread.sleep(5*1000L);// 5 second.
+                    SendCommand.sendMessage("Server need reboot! restart in 5 second.",serverConfig);
+                    Thread.sleep(1*1000L);// 4 second.
+                    SendCommand.sendMessage("Server need reboot! restart in 4 second.",serverConfig);
+                    Thread.sleep(1*1000L);// 3 second.
+                    SendCommand.sendMessage("Server need reboot! restart in 3 second.",serverConfig);
+                    Thread.sleep(1*1000L);// 2 second.
+                    SendCommand.sendMessage("Server need reboot! restart in 2 second.",serverConfig);
+                    Thread.sleep(1*1000L);// 1 second.
+                    SendCommand.sendMessage("Server need reboot! restart in 1 second.",serverConfig);
+                    Thread.sleep(3*1000L);
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
                     SendLog("Stopping server.");
                     if (closeServer()) {
@@ -90,10 +114,10 @@ public class CheckUpdate extends Thread {
                             throw new RuntimeException();
                     } else
                         throw new RuntimeException();
-                    Thread.sleep(300 * 1000L);
+                    Thread.sleep(serverConfig.getRestartTime() * 1000L);
                 }
                 unixTimestamp = Instant.now().getEpochSecond();
-                Thread.sleep(30 * 1000L);
+                Thread.sleep(serverConfig.getCheckFrequency() * 1000L);
             }
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
