@@ -34,7 +34,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 
 public class CheckUpdate extends Thread {
@@ -72,6 +71,7 @@ public class CheckUpdate extends Thread {
                     }
                 }
                 SendLog(error + " items error on check.");
+                unixTimestamp = Instant.now().getEpochSecond();
                 if (needRestart) {
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 5 minute.").queue();
                     SendCommand.sendMessage("Server need reboot! restart in 5 minute.",serverConfig);
@@ -107,7 +107,7 @@ public class CheckUpdate extends Thread {
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
                     SendLog("Stopping server.");
                     if (closeServer()) {
-                        Thread.sleep(30 * 1000L);
+                        Thread.sleep(60 * 1000L);
                         SendLog("Server has stop.");
                         SendLog("Rebooting server.");
                         if (!startServer())
@@ -116,7 +116,6 @@ public class CheckUpdate extends Thread {
                         throw new RuntimeException();
                     Thread.sleep(serverConfig.getRestartTime() * 1000L);
                 }
-                unixTimestamp = Instant.now().getEpochSecond();
                 Thread.sleep(serverConfig.getCheckFrequency() * 1000L);
             }
         } catch (InterruptedException e) {
