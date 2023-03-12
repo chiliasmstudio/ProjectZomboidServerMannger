@@ -48,6 +48,9 @@ public class SendCommand {
             // Authentication failed
             e.printStackTrace();//TODO Log4j
             return false;
+        } catch (Exception e){
+            e.printStackTrace();
+            return false;
         }
     }
 }
