@@ -34,11 +34,17 @@ public class SendCommand {
      * @param serverConfig The configuration of the target server
      * @return true if the message was successfully sent, false otherwise
      */
-    public static boolean sendMessage(String message, ServerConfig serverConfig) {
+
+    private ServerConfig serverConfig;
+    private Rcon rcon;
+
+    public SendCommand(ServerConfig serverConfig) {
+        this.serverConfig = serverConfig;
+    }
+
+    public boolean connect() {
         try {
-            Rcon rcon = new Rcon(serverConfig.getServerIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
-            rcon.command("servermsg \"" + message + "\"");
-            rcon.disconnect();
+            rcon = new Rcon(serverConfig.getServerIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
             return true;
         } catch (IOException e) {
             // Unable to connect to the server
@@ -48,9 +54,28 @@ public class SendCommand {
             // Authentication failed
             e.printStackTrace();//TODO Log4j
             return false;
-        } catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
     }
+
+    public boolean disConnect() {
+        try {
+            rcon.disconnect();
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean sendMessage(String message) {
+        try {
+            rcon.command("servermsg \"" + message + "\"");
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }

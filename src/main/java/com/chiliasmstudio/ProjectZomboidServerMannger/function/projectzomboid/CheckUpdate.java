@@ -50,8 +50,13 @@ public class CheckUpdate extends Thread {
         try {
             if (!startServer())
                 throw new RuntimeException();
-            unixTimestamp = Instant.now().getEpochSecond();
+            Thread.sleep(serverConfig.getRestartTime() * 1000L);
 
+            SendCommand sendCommand = new SendCommand(serverConfig);
+            if(!sendCommand.connect())
+                throw new RuntimeException();
+
+            unixTimestamp = Instant.now().getEpochSecond();
             while (true) {
 
                 //Check update
@@ -89,51 +94,45 @@ public class CheckUpdate extends Thread {
                 // Restart server.
                 if (needRestart) {
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 5 minute.").queue();
-                    SendCommand.sendMessage("Server need reboot! restart in 5 minute.", serverConfig);
+                    sendCommand.sendMessage("Server need reboot! restart in 5 minute.");
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("Mod to update:").queue();
                     for (int i = 0; i < updateList.length(); i++) {
                         JSONObject element = updateList.getJSONObject(i);
                         String message = "https://steamcommunity.com/sharedfiles/filedetails/?id=" + element.get("publishedfileid");
                         MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("<" + message + ">").setEmbeds(Collections.emptyList()).queue();
                     }
-                    try {
-                        Thread.sleep(60 * 1000L);// 4 minute.
-                        SendCommand.sendMessage("Server need reboot! restart in 4 minute.", serverConfig);
-                        Thread.sleep(60 * 1000L);// 3 minute.
-                        SendCommand.sendMessage("Server need reboot! restart in 3 minute.", serverConfig);
-                        Thread.sleep(60 * 1000L);// 2 minute.
-                        SendCommand.sendMessage("Server need reboot! restart in 2 minute.", serverConfig);
-                        Thread.sleep(60 * 1000L);// 1 minute.
-                        SendCommand.sendMessage("Server need reboot! restart in 1 minute.", serverConfig);
-                        Thread.sleep(30 * 1000L);// 30 second.
-                        SendCommand.sendMessage("Server need reboot! restart in 30 second.", serverConfig);
-                        Thread.sleep(20 * 1000L);// 10 second.
-                        SendCommand.sendMessage("Server need reboot! restart in 10 second.", serverConfig);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+
+
+                    Thread.sleep(60 * 1000L);// 4 minute.
+                    sendCommand.sendMessage("Server need reboot! restart in 4 minute.");
+                    Thread.sleep(60 * 1000L);// 3 minute.
+                    sendCommand.sendMessage("Server need reboot! restart in 3 minute.");
+                    Thread.sleep(60 * 1000L);// 2 minute.
+                    sendCommand.sendMessage("Server need reboot! restart in 2 minute.");
+                    Thread.sleep(60 * 1000L);// 1 minute.
+                    sendCommand.sendMessage("Server need reboot! restart in 1 minute.");
+                    Thread.sleep(30 * 1000L);// 30 second.
+                    sendCommand.sendMessage("Server need reboot! restart in 30 second.");
+                    Thread.sleep(20 * 1000L);// 10 second.
+                    sendCommand.sendMessage("Server need reboot! restart in 10 second.");
+
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
                     SendLog("Stopping server.");
 
-                    int StopAttempts = 0;//TODO fix code
-                    boolean StopSuccess = false;
-                    while (StopAttempts < 3 && !StopSuccess) {
-                        try {
-                            if (closeServer()) {
-                                Thread.sleep(60 * 1000L);
-                                SendLog("Server has stop.");
-                                StopSuccess = true;
-                                break;
-                            } else {
-                                Thread.sleep(3000L);
-                                throw new RuntimeException();
-                            }
-                        } catch (Exception e) {
-                            StopAttempts++;
+                    int tryClose = 0;
+                    while (true) {
+                        if (closeServer()) {
+                            Thread.sleep(60 * 1000L);
+                            SendLog("Server has stop.");
+                            break;
+                        } else {
+                            Thread.sleep(3000L);
+                            if (tryClose > 3)
+                                throw new RuntimeException("Failed to execute code after 3 attempts");
                         }
+                        tryClose++;
                     }
-                    if (!StopSuccess)
-                        throw new RuntimeException("Failed to execute code after 3 attempts");
+
                     Thread.sleep(serverConfig.getRestartTime() * 1000L);
                     SendLog("Rebooting server.");
                     startServer();
