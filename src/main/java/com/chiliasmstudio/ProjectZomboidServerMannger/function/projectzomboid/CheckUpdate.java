@@ -114,6 +114,7 @@ public class CheckUpdate extends Thread {
                     }
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
                     SendLog("Stopping server.");
+
                     int StopAttempts = 0;//TODO fix code
                     boolean StopSuccess = false;
                     while (StopAttempts < 3 && !StopSuccess) {
@@ -121,7 +122,6 @@ public class CheckUpdate extends Thread {
                             if (closeServer()) {
                                 Thread.sleep(60 * 1000L);
                                 SendLog("Server has stop.");
-                                SendLog("Rebooting server.");
                                 StopSuccess = true;
                                 break;
                             } else {
@@ -135,6 +135,7 @@ public class CheckUpdate extends Thread {
                     if (!StopSuccess)
                         throw new RuntimeException("Failed to execute code after 3 attempts");
                     Thread.sleep(serverConfig.getRestartTime() * 1000L);
+                    SendLog("Rebooting server.");
                     startServer();
                 }
 
