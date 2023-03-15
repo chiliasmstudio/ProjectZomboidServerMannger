@@ -48,13 +48,19 @@ public class CheckUpdate extends Thread {
 
     public void run() {
         try {
+            // Try to booting server.
             if (!startServer())
                 throw new RuntimeException();
+            SendLog("Boot ok.");
+
+            // Wait until server is start.
             Thread.sleep(serverConfig.getRestartTime() * 1000L);
 
+            // Try rcon connect.
             SendCommand sendCommand = new SendCommand(serverConfig);
             if(!sendCommand.connect())
                 throw new RuntimeException();
+            SendLog("Rcon ok.");
 
             unixTimestamp = Instant.now().getEpochSecond();
             while (true) {
