@@ -48,7 +48,7 @@ public class CheckUpdate extends Thread {
 
     public void run() {
         try {
-            // Try to booting server.
+            // Try to boot server.
             if (!startServer())
                 throw new RuntimeException();
             SendLog("Boot ok.");
@@ -139,9 +139,19 @@ public class CheckUpdate extends Thread {
                         tryClose++;
                     }
 
+                    // Try to boot server.
+                    if (!startServer())
+                        throw new RuntimeException();
+                    SendLog("Boot ok.");
+
+                    // Wait until server is start.
                     Thread.sleep(serverConfig.getRestartTime() * 1000L);
-                    SendLog("Rebooting server.");
-                    startServer();
+
+                    // Try rcon connect.
+                    sendCommand = new SendCommand(serverConfig);
+                    if(!sendCommand.connect())
+                        throw new RuntimeException();
+                    SendLog("Rcon ok.");
                 }
 
 
