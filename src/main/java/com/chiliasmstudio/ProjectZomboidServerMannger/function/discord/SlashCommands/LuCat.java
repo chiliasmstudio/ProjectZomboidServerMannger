@@ -20,7 +20,6 @@ package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.SlashCom
 
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
@@ -28,25 +27,22 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 public class LuCat extends ListenerAdapter{
 
     /**
-     * When received !Callrole will create role selection menu.
+     * Reply meow when lucat command send.
      */
-    public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getMessage().getContentStripped().equalsIgnoreCase("!Hello world") && !event.getMember().getUser().isBot()) {
-            event.getChannel().sendMessage("Hello world!").queue();
-        }
-    }
-
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (event.getName().equals("helloworld")) {
-            event.reply("Hello world!").queue(); // reply immediately
+        if (event.getName().equals("lucat")) {
+            event.reply("meow").queue(); // reply immediately
         }
     }
 
+    /**
+     * Register the event
+     */
     @Override
     public void onGuildReady(GuildReadyEvent event){
         event.getGuild().updateCommands().addCommands(
-                Commands.slash("helloworld", "Say hello world!")
+                Commands.slash("lucat", "meow")
         ).queue();
     }
 }

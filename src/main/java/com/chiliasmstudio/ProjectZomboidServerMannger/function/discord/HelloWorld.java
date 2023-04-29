@@ -28,7 +28,7 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 public class HelloWorld extends ListenerAdapter{
 
     /**
-     * When received !Callrole will create role selection menu.
+     * Say Hello world! when !Hello world is received.
      */
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getMessage().getContentStripped().equalsIgnoreCase("!Hello world") && !event.getMember().getUser().isBot()) {
@@ -36,6 +36,9 @@ public class HelloWorld extends ListenerAdapter{
         }
     }
 
+    /**
+     * Reply Hello world! when helloworld command send.
+     */
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
         if (event.getName().equals("helloworld")) {
@@ -43,6 +46,9 @@ public class HelloWorld extends ListenerAdapter{
         }
     }
 
+    /**
+     * Register the event
+     */
     @Override
     public void onGuildReady(GuildReadyEvent event){
         event.getGuild().updateCommands().addCommands(
