@@ -46,7 +46,7 @@ public class main {
         }
         Config.LoadConfig(null);
         initialization_Main(Config.DiscordToken);
-        Thread.sleep(5000L);
+        Thread.sleep(15000L);
 
         File folder = new File(".//config//servers");
         File[] listOfFiles = folder.listFiles();
