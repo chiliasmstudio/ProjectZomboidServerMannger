@@ -63,6 +63,10 @@ public class ServerConfig {
         if (CheckFrequency <= 0)
             throw new Exception("CheckFrequency not found!");
 
+        StartCommand = properties.getProperty("StartCommand", "");
+        if (StartCommand.isEmpty())
+            throw new Exception("StartCommand not found!");
+
         //-------- SSH --------
         SSH = Boolean.parseBoolean(properties.getProperty("SSH", ""));
         if (SSH) {
@@ -132,6 +136,12 @@ public class ServerConfig {
      */
     @Getter
     private Long CheckFrequency = -1L;
+
+    /**
+     * Server time zone.
+     */
+    @Getter
+    private String StartCommand = "";
 
     //-------- SSH --------
 

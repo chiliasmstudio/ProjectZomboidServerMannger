@@ -62,6 +62,7 @@ public class CheckUpdate extends Thread {
                 throw new RuntimeException();
             SendLog("Rcon ok.");
 
+
             unixTimestamp = Instant.now().getEpochSecond();
             while (true) {
 
@@ -99,8 +100,8 @@ public class CheckUpdate extends Thread {
 
                 // Restart server.
                 if (needRestart) {
-                    MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 5 minute.").queue();
-                    sendCommand.sendMessage("Server need reboot! restart in 5 minute.");
+                    MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 10 minute.").queue();
+                    sendCommand.sendMessage("Server need reboot! restart in 10 minute.");
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("Mod to update:").queue();
                     for (int i = 0; i < updateList.length(); i++) {
                         JSONObject element = updateList.getJSONObject(i);
@@ -109,13 +110,9 @@ public class CheckUpdate extends Thread {
                     }
 
 
-                    Thread.sleep(60 * 1000L);// 4 minute.
+                    Thread.sleep(60 * 1000L);// 5 minute.
                     sendCommand.sendMessage("Server need reboot! restart in 4 minute.");
-                    Thread.sleep(60 * 1000L);// 3 minute.
-                    sendCommand.sendMessage("Server need reboot! restart in 3 minute.");
-                    Thread.sleep(60 * 1000L);// 2 minute.
-                    sendCommand.sendMessage("Server need reboot! restart in 2 minute.");
-                    Thread.sleep(60 * 1000L);// 1 minute.
+                    Thread.sleep(240 * 1000L);// 1 minute.
                     sendCommand.sendMessage("Server need reboot! restart in 1 minute.");
                     Thread.sleep(30 * 1000L);// 30 second.
                     sendCommand.sendMessage("Server need reboot! restart in 30 second.");

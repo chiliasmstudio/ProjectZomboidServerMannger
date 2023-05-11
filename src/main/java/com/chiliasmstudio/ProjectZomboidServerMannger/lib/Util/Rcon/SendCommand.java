@@ -78,4 +78,13 @@ public class SendCommand {
         }
     }
 
+    public boolean send(String command) {
+        try {
+            rcon.command(command);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
 }
