@@ -1,6 +1,6 @@
 /*
  * < ProjectZomboidServerMannger - Project Zomboid server manage software >
- *     Copyright (C) 2022-2023 chiliasmstudio
+ *     Copyright (C) 2022-2024 chiliasmstudio
  *
  *     This program is free software: you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -38,12 +38,20 @@ public class main {
             System.out.println("[INFO]Operating system: Windows");
         } else if (SystemUtils.IS_OS_MAC) {
             System.out.println("[INFO]Operating system: macOS");
+            System.out.println("Sorry, we don’t support mac os yet :(");
+            Thread.sleep(5*1000L);
+            System.exit(0);
         } else if (SystemUtils.IS_OS_LINUX) {
             System.out.println("[INFO] Operating system: Linux");
         } else {
             System.out.println("[ERROR]Unknown operating system");
             throw new RuntimeException("Unknown operating system");
         }
+
+
+    }
+
+    public static void WindowsStartUp()throws Exception{
         Config.LoadConfig(null);
         initialization_Main(Config.DiscordToken);
         Thread.sleep(15000L);
@@ -64,20 +72,5 @@ public class main {
                 Thread.sleep(1000L);
             }
         }
-
-        /*
-        Scanner scan = new Scanner( System.in );
-
-        while (true) {
-            String message = scan.nextLine();
-            System.out.printf( "string \"%s\" received...\n", message );
-            System.out.flush();
-            System.err.flush();
-            if ( message.equals( "end" ) ) {
-                break;
-            }
-
-        }*/
-
     }
 }
