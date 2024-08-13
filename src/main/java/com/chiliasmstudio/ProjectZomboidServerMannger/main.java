@@ -19,27 +19,32 @@
 package com.chiliasmstudio.ProjectZomboidServerMannger;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdate;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.Rcon;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.SendCommand;
-import net.dv8tion.jda.api.entities.Guild;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 
 import static com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot.initialization_Main;
 
 public class main {
+    private static final Logger logger = LogManager.getLogger("mainㄋ");
     public static CheckUpdate[] checkUpdates = new CheckUpdate[30];
 
     public static void main(String[] args) throws Exception {
+        /*logger.debug("Debugging");
+        logger.info("Hello, World!");
+        logger.warn("Warning");
+        logger.error("Error");*/
         // TODO Log4j
         if (SystemUtils.IS_OS_WINDOWS) {
             System.out.println("[INFO]Operating system: Windows");
+            //WindowsStartUp();
         } else if (SystemUtils.IS_OS_MAC) {
             System.out.println("[INFO]Operating system: macOS");
             System.out.println("Sorry, we don’t support mac os yet :(");
-            Thread.sleep(5*1000L);
+            Thread.sleep(5 * 1000L);
             System.exit(0);
         } else if (SystemUtils.IS_OS_LINUX) {
             System.out.println("[INFO] Operating system: Linux");
@@ -47,8 +52,6 @@ public class main {
             System.out.println("[ERROR]Unknown operating system");
             throw new RuntimeException("Unknown operating system");
         }
-
-
     }
 
     public static void WindowsStartUp()throws Exception{
