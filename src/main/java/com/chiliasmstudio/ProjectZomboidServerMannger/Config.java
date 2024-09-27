@@ -18,8 +18,9 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Properties;
@@ -33,14 +34,31 @@ public class Config {
      * @throws Exception   When required argument is invalid.
      */
     public static void LoadConfig(String configFileDir) throws Exception {
-        Properties properties = new Properties();
-        if (configFileDir == null || configFileDir.isEmpty())
-            configFileDir = "config/config.properties";
-        try {
-            properties.load(new FileInputStream(configFileDir));
-        } catch (IOException ex) {
-            throw new IOException("Fail to load config file!");
+        // Check if the config file exists in the current directory
+        File configFile = new File(configFileDir);
+        if (!configFile.exists()) {
+            // If it does not exist, copy the resource file from the JAR
+            try (InputStream resourceStream = Config.class.getClassLoader().getResourceAsStream("config/config.properties")) {
+                if (resourceStream == null) {
+                    throw new FileNotFoundException("Resource config/config.properties not found in JAR!");
+                }
+
+                // Create directories if they do not exist
+                File configDir = new File(configFile.getParent());
+                if (!configDir.exists()) {
+                    configDir.mkdirs();
+                }
+
+                // Copy the file from the JAR to the current directory
+                Files.copy(resourceStream, configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Config file copied from JAR resources.");
+            } catch (IOException ex) {
+                throw new IOException("Failed to copy config file from JAR resources!", ex);
+            }
         }
+
+        Properties properties = new Properties();
+        properties.load(new FileInputStream(configFileDir));
 
         DiscordToken = properties.getProperty("DiscordToken", "");
         if (DiscordToken == null || DiscordToken.isEmpty())
@@ -54,8 +72,6 @@ public class Config {
         Servers.addAll(Arrays.asList(ServersLine.split(";")));
         if (Servers == null || Servers.isEmpty())
             throw new Exception("Servers not found!");
-
-
     }
 
     /**

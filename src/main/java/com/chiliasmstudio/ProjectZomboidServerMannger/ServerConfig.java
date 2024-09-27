@@ -22,6 +22,7 @@ import lombok.Getter;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class ServerConfig {
@@ -34,49 +35,27 @@ public class ServerConfig {
      */
     public void LoadConfig(String configFileDir) throws Exception {
         Properties properties = new Properties();
-        try {
-            properties.load(new FileInputStream(configFileDir));
-        } catch (IOException ex) {
-            throw new IOException("Fail to load server config file!");
-        }
+        properties.load(new FileInputStream(configFileDir));
 
         //-------- Basic -------
         ServerName = properties.getProperty("ServerName", "");
         if (ServerName == null || ServerName.isEmpty())
             throw new Exception("ServerName not found!");
 
-        ServerIP = properties.getProperty("ServerIP", "");
-        if (ServerIP == null || ServerIP.isEmpty())
-            throw new Exception("ServerIP not found!");
-
         SteamCollections = Long.valueOf(properties.getProperty("SteamCollections", ""));
         if (SteamCollections < 0)
             throw new Exception("SteamCollections not found!");
 
-        TimeZone = properties.getProperty("TimeZone", "");
-
-        RestartTime = Long.valueOf(properties.getProperty("RestartTime", ""));
-        if (RestartTime <= 0)
-            throw new Exception("RestartTime not found!");
-
         CheckFrequency = Long.valueOf(properties.getProperty("CheckFrequency", ""));
         if (CheckFrequency <= 0)
             throw new Exception("CheckFrequency not found!");
-
-        StartCommand = properties.getProperty("StartCommand", "");
-        if (StartCommand.isEmpty())
-            throw new Exception("StartCommand not found!");
-
-        //-------- SSH --------
-        SSH = Boolean.parseBoolean(properties.getProperty("SSH", ""));
-        if (SSH) {
-            SSH_Command = properties.getProperty("SSH_Command", "");
-            if (SSH_Command == null || SSH_Command.isEmpty())
-                throw new Exception("SSH_Command not found!");
-        }
-
+        //else if (CheckFrequency < 60)
 
         //-------- Rcon --------
+        RconIP = properties.getProperty("RconIP", "");
+        if (RconIP == null || RconIP.isEmpty())
+            throw new Exception("ServerIP not found!");
+
         RconPort = Integer.parseInt(properties.getProperty("RconPort", ""));
         if (RconPort < 0 || RconPort > 65535)
             throw new Exception("RconPort not found!");
@@ -88,15 +67,6 @@ public class ServerConfig {
         //-------- Discord --------
         DiscordChannel = Long.valueOf(properties.getProperty("DiscordChannel", ""));
 
-        //-------- Directory --------
-        ServerDirectory = properties.getProperty("ServerDirectory", "");
-        if (ServerDirectory == null || ServerDirectory.isEmpty())
-            throw new Exception("ServerDirectory not found!");
-
-        ServerStartupScrip = properties.getProperty("ServerStartupScrip", "");
-        if (ServerStartupScrip == null || ServerStartupScrip.isEmpty())
-            throw new Exception("ServerStartupScrip not found!");
-
 
     }
 
@@ -107,11 +77,6 @@ public class ServerConfig {
      */
     @Getter
     private String ServerName = "";
-    /**
-     * Server ip.
-     */
-    @Getter
-    private String ServerIP = "";
 
     /**
      * Steam collections id.
@@ -120,52 +85,26 @@ public class ServerConfig {
     private Long SteamCollections = -1L;
 
     /**
-     * Server time zone.
-     */
-    @Getter
-    private String TimeZone = "";
-
-    /**
-     * Restart time.
-     */
-    @Getter
-    private Long RestartTime = -1L;
-
-    /**
      * CheckFrequency.
      */
     @Getter
     private Long CheckFrequency = -1L;
 
-    /**
-     * Server time zone.
-     */
-    @Getter
-    private String StartCommand = "";
-
-    //-------- SSH --------
-
-    /**
-     * Using ssh.
-     */
-    @Getter
-    private boolean SSH = false;
-
-    /**
-     * Command to run in ssh
-     */
-    @Getter
-    private String SSH_Command = "";
-
     //-------- Rcon --------
     /**
-     * Rcon port.
+     * Server rcon ip.
+     */
+    @Getter
+    private String RconIP = "";
+
+    /**
+     * Server rcon port.
      */
     @Getter
     private int RconPort = -1;
 
     /**
-     * Rcon password.
+     * Server rcon password.
      */
     @Getter
     private String RconPassword = "";
@@ -177,18 +116,6 @@ public class ServerConfig {
     @Getter
     private Long DiscordChannel = 0L;
 
-    //-------- Directory --------
-    /**
-     * Directory of server.
-     */
-    @Getter
-    private String ServerDirectory = "";
-
-    /**
-     * Directory of server startup bat/sh file.
-     */
-    @Getter
-    private String ServerStartupScrip = "";
 
 
 }

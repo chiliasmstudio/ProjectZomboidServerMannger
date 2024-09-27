@@ -21,59 +21,114 @@ package com.chiliasmstudio.ProjectZomboidServerMannger;
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdate;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configurator;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
+
 
 import static com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot.initialization_Main;
 
 public class main {
-    private static final Logger logger = LogManager.getLogger("mainㄋ");
+    private static final Logger mainLogger = LogManager.getLogger("main");
     public static CheckUpdate[] checkUpdates = new CheckUpdate[30];
 
     public static void main(String[] args) throws Exception {
-        /*logger.debug("Debugging");
-        logger.info("Hello, World!");
-        logger.warn("Warning");
-        logger.error("Error");*/
-        // TODO Log4j
-        if (SystemUtils.IS_OS_WINDOWS) {
-            System.out.println("[INFO]Operating system: Windows");
-            //WindowsStartUp();
-        } else if (SystemUtils.IS_OS_MAC) {
-            System.out.println("[INFO]Operating system: macOS");
-            System.out.println("Sorry, we don’t support mac os yet :(");
-            Thread.sleep(5 * 1000L);
-            System.exit(0);
-        } else if (SystemUtils.IS_OS_LINUX) {
-            System.out.println("[INFO] Operating system: Linux");
-        } else {
-            System.out.println("[ERROR]Unknown operating system");
-            throw new RuntimeException("Unknown operating system");
+
+        boolean isDebugMode = false;
+        for (String arg : args) {
+            if ("-debug".equalsIgnoreCase(arg)) {
+                isDebugMode = true;
+                break;
+            }
         }
+
+        // 根據是否使用 -debug 設置日誌等級
+        if (isDebugMode) {
+            Configurator.setRootLevel(Level.DEBUG);
+        } else {
+            Configurator.setRootLevel(Level.INFO);
+        }
+
+
+        //SetUpLog4j();
+        //mainLogger.debug("This is a debug message.");
+        //mainLogger.info("This is an info message.");
+        //mainLogger.error("This is an error message.");
+
+        Config.LoadConfig(".//config//config.properties");
+        initialization_Main(Config.DiscordToken);
+        Thread.sleep(5000L);
+
+        LoadServerConfig();
     }
 
-    public static void WindowsStartUp()throws Exception{
-        Config.LoadConfig(null);
-        initialization_Main(Config.DiscordToken);
-        Thread.sleep(15000L);
+    public static void LoadServerConfig() throws Exception {
+        // Load the main configuration file
+
 
         File folder = new File(".//config//servers");
         File[] listOfFiles = folder.listFiles();
+        boolean hasServerConfig = false; // Flag to check if any other config files are found
+
+        // Iterate through the files and check for .properties files other than server_example.properties
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile() && listOfFiles[i].getName().endsWith(".properties") && !listOfFiles[i].getName().equals("server_example.properties")) {
-                System.out.println("[Config] find server config: " + listOfFiles[i].getName());// TODO Log4j
+                hasServerConfig = true; // Set flag to true if a valid config is found
+                mainLogger.info("find server config: " + listOfFiles[i].getName());
                 CheckUpdate updater = new CheckUpdate(listOfFiles[i].getName());
                 checkUpdates[i] = updater;
             }
         }
 
+        // If no server config files are found other than server_example.properties, throw an exception
+        if (!hasServerConfig) {
+            throw new Exception("No server config files found other than server_example.properties!");
+        }
+
+        // Start update checks for all the valid server configurations
         for (CheckUpdate servers : checkUpdates) {
             if (servers != null) {
-                servers.start();
+                // TEMP servers.start();
                 Thread.sleep(1000L);
             }
         }
+    }
+
+
+    public static void SetUpLog4j() throws IOException {
+        File configFile = new File("config/log4j2.xml");
+        if (!configFile.exists()) {
+            // If it does not exist, copy the resource file from the JAR
+            try (InputStream resourceStream = Config.class.getClassLoader().getResourceAsStream("log4j2.xml")) {
+                if (resourceStream == null) {
+                    throw new FileNotFoundException("Resource log4j2.xml not found in JAR!");
+                }
+
+                // Create directories if they do not exist
+                File configDir = new File(configFile.getParent());
+                if (!configDir.exists()) {
+                    configDir.mkdirs();
+                }
+
+                // Copy the file from the JAR to the current directory
+                Files.copy(resourceStream, configFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Config file copied from JAR resources.");
+            } catch (IOException ex) {
+                throw new IOException("Failed to copy log4j2.xml from JAR resources!", ex);
+            }
+        }
+
+        LoggerContext context = (org.apache.logging.log4j.core.LoggerContext) LogManager.getContext(false);
+        File file = new File("Config/log4j2.xml");
+        context.setConfigLocation(file.toURI());
     }
 }

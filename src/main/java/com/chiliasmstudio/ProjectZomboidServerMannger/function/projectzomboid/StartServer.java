@@ -16,14 +16,14 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.ex;
+package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
 
-import java.io.IOException;
+import java.util.concurrent.Callable;
 
-public class MalformedPacketException extends IOException {
-
-    public MalformedPacketException(String message) {
-        super(message);
+//TODO start by command
+public class StartServer implements Callable<Boolean>{
+    public Boolean call() throws InterruptedException {
+        Thread.sleep(30000);
+        return true;
     }
-
 }

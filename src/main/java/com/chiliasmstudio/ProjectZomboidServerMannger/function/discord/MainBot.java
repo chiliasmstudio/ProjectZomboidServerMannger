@@ -18,13 +18,13 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord;
 
+import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.LegacyCommands.HelloWorld;
+import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.LegacyCommands.TestCommand;
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.SlashCommands.LuCat;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
-
-import javax.swing.plaf.LayerUI;
 
 public class MainBot {
     public static JDABuilder botBuilder_Main = null;
@@ -41,8 +41,11 @@ public class MainBot {
             botBuilder_Main.setActivity(Activity.playing("Hello discord!"));
             botBuilder_Main.enableIntents(GatewayIntent.MESSAGE_CONTENT);
 
-            botBuilder_Main.addEventListeners(new HelloWorld());
             botBuilder_Main.addEventListeners(new LuCat());
+
+            botBuilder_Main.addEventListeners(new HelloWorld());
+            botBuilder_Main.addEventListeners(new TestCommand());
+
             bot_Main = botBuilder_Main.build();
         } catch (Exception e) {
             e.printStackTrace();

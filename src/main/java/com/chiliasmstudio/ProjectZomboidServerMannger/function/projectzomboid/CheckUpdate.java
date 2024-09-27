@@ -19,17 +19,18 @@
 package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.Rcon;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.ex.AuthenticationException;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.SendCommand;
+import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.RconCommandHandler;
 import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam.SteamAPI;
 import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
+import net.kronos.rkon.core.Rcon;
+import net.kronos.rkon.core.ex.AuthenticationException;
 import org.apache.commons.lang3.SystemUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -41,25 +42,31 @@ public class CheckUpdate extends Thread {
     private long unixTimestamp = 0L;
     // Server config file.
     private ServerConfig serverConfig = new ServerConfig();
+    private Logger serverLogger;
+    private RconCommandHandler rconCommandHandler;
 
     public CheckUpdate(String configDir) throws Exception {
         serverConfig.LoadConfig("config//servers//" + configDir);
+        serverLogger = LogManager.getLogger(serverConfig.getServerName());
+        serverLogger.info("Server config loaded");
     }
 
     public void run() {
         try {
-            // Try to boot server.
-            if (!startServer())
-                throw new RuntimeException();
-            SendLog("Boot ok.");
-
-            // Wait until server is start.
-            Thread.sleep(serverConfig.getRestartTime() * 1000L);
-
             // Try rcon connect.
-            SendCommand sendCommand = new SendCommand(serverConfig);
-            if(!sendCommand.connect())
-                throw new RuntimeException();
+            rconCommandHandler = new RconCommandHandler(serverConfig);
+            try {
+                rconCommandHandler.connect();
+            } catch (IOException e) {
+                // Unable to connect to the server
+                e.printStackTrace();//TODO Log4j
+            } catch (AuthenticationException e) {
+                // Authentication failed
+                e.printStackTrace();//TODO Log4j
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
             SendLog("Rcon ok.");
 
 
@@ -101,7 +108,7 @@ public class CheckUpdate extends Thread {
                 // Restart server.
                 if (needRestart) {
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 10 minute.").queue();
-                    sendCommand.sendMessage("Server need reboot! restart in 10 minute.");
+                    rconCommandHandler.sendMessage("Server need reboot! restart in 10 minute.");
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("Mod to update:").queue();
                     for (int i = 0; i < updateList.length(); i++) {
                         JSONObject element = updateList.getJSONObject(i);
@@ -111,13 +118,13 @@ public class CheckUpdate extends Thread {
 
 
                     Thread.sleep(60 * 1000L);// 5 minute.
-                    sendCommand.sendMessage("Server need reboot! restart in 4 minute.");
+                    rconCommandHandler.sendMessage("Server need reboot! restart in 4 minute.");
                     Thread.sleep(240 * 1000L);// 1 minute.
-                    sendCommand.sendMessage("Server need reboot! restart in 1 minute.");
+                    rconCommandHandler.sendMessage("Server need reboot! restart in 1 minute.");
                     Thread.sleep(30 * 1000L);// 30 second.
-                    sendCommand.sendMessage("Server need reboot! restart in 30 second.");
+                    rconCommandHandler.sendMessage("Server need reboot! restart in 30 second.");
                     Thread.sleep(20 * 1000L);// 10 second.
-                    sendCommand.sendMessage("Server need reboot! restart in 10 second.");
+                    rconCommandHandler.sendMessage("Server need reboot! restart in 10 second.");
 
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
                     SendLog("Stopping server.");
@@ -142,12 +149,12 @@ public class CheckUpdate extends Thread {
                     SendLog("Boot ok.");
 
                     // Wait until server is start.
-                    Thread.sleep(serverConfig.getRestartTime() * 1000L);
+                    //Thread.sleep(serverConfig.getRestartTime() * 1000L);
 
                     // Try rcon connect.
-                    sendCommand = new SendCommand(serverConfig);
-                    if(!sendCommand.connect())
-                        throw new RuntimeException();
+                    //rconCommandHandler = new RconCommandHandler(serverConfig);
+                    //if(!rconCommandHandler.connect())
+                    //    throw new RuntimeException();
                     SendLog("Rcon ok.");
                 }
 
@@ -167,14 +174,12 @@ public class CheckUpdate extends Thread {
     private boolean startServer() {
         try {
             ProcessBuilder server = null;
-            if (serverConfig.isSSH()) {
-                throw new RuntimeException("Error");
-            } else if (SystemUtils.IS_OS_WINDOWS) {
-                server = new ProcessBuilder("cmd", "/c start " + serverConfig.getServerStartupScrip()).directory(new File(serverConfig.getServerDirectory()));
+            if (SystemUtils.IS_OS_WINDOWS) {
+                //server = new ProcessBuilder("cmd", "/c start " + serverConfig.getServerStartupScrip()).directory(new File(serverConfig.getServerDirectory()));
             } else if (SystemUtils.IS_OS_MAC) {
                 throw new RuntimeException("Error");
             } else if (SystemUtils.IS_OS_LINUX) {
-                server = new ProcessBuilder("xterm", "-e", "sh your_script.sh").directory(new File(serverConfig.getServerDirectory()));
+                //server = new ProcessBuilder("xterm", "-e", "sh your_script.sh").directory(new File(serverConfig.getServerDirectory()));
             }
 
             Process p = server.start();
@@ -198,7 +203,7 @@ public class CheckUpdate extends Thread {
      */
     private boolean closeServer() {
         try {
-            Rcon rcon = new Rcon(serverConfig.getServerIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
+            Rcon rcon = new Rcon(serverConfig.getRconIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
             rcon.command("quit");
             rcon.disconnect();
             MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " has stop.").queue();
@@ -226,10 +231,10 @@ public class CheckUpdate extends Thread {
      */
     private String formattedDate(Long unixTimestamp) {
         ZoneId zoneId;
-        if (serverConfig.getTimeZone().equalsIgnoreCase("Auto"))
+        //if (serverConfig.getTimeZone().equalsIgnoreCase("Auto"))
             zoneId = ZoneId.systemDefault();
-        else
-            zoneId = ZoneId.of(serverConfig.getTimeZone());
+        //else
+        //    zoneId = ZoneId.of(serverConfig.getTimeZone());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(zoneId);
         Instant instant = Instant.ofEpochSecond(unixTimestamp);
         return formatter.format(instant);

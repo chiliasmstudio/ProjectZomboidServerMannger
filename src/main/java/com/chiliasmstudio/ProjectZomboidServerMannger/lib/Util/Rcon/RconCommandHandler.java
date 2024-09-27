@@ -19,12 +19,9 @@
 package com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon;
 
 import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.Rcon;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Rcon.ex.AuthenticationException;
+import net.kronos.rkon.core.Rcon;
 
-import java.io.IOException;
-
-public class SendCommand {
+public class RconCommandHandler {
 
     /**
      * Sends a message to the target server via Rcon.
@@ -38,26 +35,12 @@ public class SendCommand {
     private ServerConfig serverConfig;
     private Rcon rcon;
 
-    public SendCommand(ServerConfig serverConfig) {
+    public RconCommandHandler(ServerConfig serverConfig) {
         this.serverConfig = serverConfig;
     }
 
-    public boolean connect() {
-        try {
-            rcon = new Rcon(serverConfig.getServerIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
-            return true;
-        } catch (IOException e) {
-            // Unable to connect to the server
-            e.printStackTrace();//TODO Log4j
-            return false;
-        } catch (AuthenticationException e) {
-            // Authentication failed
-            e.printStackTrace();//TODO Log4j
-            return false;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+    public void connect() throws Exception{
+        rcon = new Rcon(serverConfig.getRconIP(), serverConfig.getRconPort(), serverConfig.getRconPassword().getBytes());
     }
 
     public boolean disConnect() {
