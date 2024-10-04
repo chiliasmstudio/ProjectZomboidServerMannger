@@ -67,19 +67,18 @@ public class CheckUpdate extends Thread {
                 e.printStackTrace();
             }
 
-            SendLog("Rcon ok.");
-
-
+            serverLogger.info("Rcon ok.");
             unixTimestamp = Instant.now().getEpochSecond();
             while (true) {
 
                 //Check update
                 JSONArray updateList = new JSONArray();
                 JSONArray itemList = null;
+
                 try {
-                    SendLog(formattedDate(Instant.now().getEpochSecond()) + " (" + Instant.now().getEpochSecond() + ")" + " start check.");
+                    serverLogger.info(formattedDate(Instant.now().getEpochSecond()) + " (" + Instant.now().getEpochSecond() + ")" + " start check.");
                     itemList = SteamAPI.GetPublishedFileDetails(SteamAPI.GetCollectionDetail(2857565347L));
-                } catch (Exception e) {
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 

@@ -15,12 +15,12 @@
     </Appenders>
 
     <Loggers>
-        <Root level="debug">
+        <Root level="info">
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="FileAppender"/>
         </Root>
 
-        <Logger name="com.chiliasmstudio.ProjectZomboidServerMannger" level="ALL" additivity="false">
+        <Logger name="com.chiliasmstudio.ProjectZomboidServerMannger" level="info" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
         </Logger>
 

@@ -43,25 +43,18 @@ public class main {
 
     public static void main(String[] args) throws Exception {
 
-        boolean isDebugMode = false;
         for (String arg : args) {
+            // Set the logging level based on whether the -debug flag is used
             if ("-debug".equalsIgnoreCase(arg)) {
-                isDebugMode = true;
+                Configurator.setRootLevel(Level.DEBUG);
                 break;
             }
         }
 
-        // 根據是否使用 -debug 設置日誌等級
-        if (isDebugMode) {
-            Configurator.setRootLevel(Level.DEBUG);
-        } else {
-            Configurator.setRootLevel(Level.INFO);
-        }
-
 
         //SetUpLog4j();
-        //mainLogger.debug("This is a debug message.");
-        //mainLogger.info("This is an info message.");
+        mainLogger.debug("This is a debug message.");
+        mainLogger.info("This is an info message.");
         //mainLogger.error("This is an error message.");
 
         Config.LoadConfig(".//config//config.properties");
@@ -103,7 +96,7 @@ public class main {
         }
     }
 
-
+    //Not use yet
     public static void SetUpLog4j() throws IOException {
         File configFile = new File("config/log4j2.xml");
         if (!configFile.exists()) {
@@ -116,7 +109,7 @@ public class main {
                 // Create directories if they do not exist
                 File configDir = new File(configFile.getParent());
                 if (!configDir.exists()) {
-                    configDir.mkdirs();
+                    configDir.mkdir();
                 }
 
                 // Copy the file from the JAR to the current directory

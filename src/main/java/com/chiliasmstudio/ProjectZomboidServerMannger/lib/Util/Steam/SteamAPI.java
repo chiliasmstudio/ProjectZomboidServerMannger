@@ -28,6 +28,8 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.NameValuePair;
 import org.apache.hc.core5.http.io.entity.EntityUtils;
 import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -35,11 +37,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SteamAPI {
-
+    private final static Logger SteamApiLogger = LogManager.getLogger("SteamAPI");
     /**
      * Get and return workshop item ids in collection.
      */
-    public static ArrayList<Long> GetCollectionDetail(Long collectionID) {
+    public static ArrayList<Long> GetCollectionDetail(Long collectionID){
         // Send Post to steam api.
         CloseableHttpClient httpclient = HttpClients.createDefault();
         HttpPost httpPost = new HttpPost("https://api.steampowered.com/ISteamRemoteStorage/GetCollectionDetails/v1");
@@ -72,7 +74,7 @@ public class SteamAPI {
             EntityUtils.consume(entity2);
             return itemList;
         } catch (Exception e) {
-            e.printStackTrace();//TODO Log4j
+            SteamApiLogger.error(e.getMessage());
             return null;
         }
 
@@ -108,7 +110,7 @@ public class SteamAPI {
             EntityUtils.consume(entity2);
             return publishedfiledetails;
         } catch (Exception e) {
-            e.printStackTrace();//TODO Log4j
+            SteamApiLogger.error(e.getMessage());
             return null;
         }
 
