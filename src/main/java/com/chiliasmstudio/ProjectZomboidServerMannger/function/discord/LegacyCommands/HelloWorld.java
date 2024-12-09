@@ -18,11 +18,17 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.LegacyCommands;
 
+import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
+import com.chiliasmstudio.ProjectZomboidServerMannger.main;
+import com.sun.tools.javac.Main;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.utils.messages.MessageCreateData;
 
 
 public class HelloWorld extends ListenerAdapter{
@@ -33,6 +39,10 @@ public class HelloWorld extends ListenerAdapter{
     public void onMessageReceived(MessageReceivedEvent event) {
         if (event.getMessage().getContentStripped().equalsIgnoreCase("!Hello world") && !event.getMember().getUser().isBot()) {
             event.getChannel().sendMessage("Hello world!").queue();
+            MainBot.bot_Main.retrieveApplicationEmojiById(1315566752192790558L);
+            Emoji customEmoji = Emoji.fromCustom("test",1315566752192790558L,true);
+            event.getChannel().sendMessage(customEmoji.getFormatted()).queue();
+
         }
     }
 

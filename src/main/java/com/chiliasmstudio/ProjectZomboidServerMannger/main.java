@@ -18,9 +18,8 @@
 
 package com.chiliasmstudio.ProjectZomboidServerMannger;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdate;
+import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdateHandler;
 
-import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -39,7 +38,7 @@ import static com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.Ma
 
 public class main {
     private static final Logger mainLogger = LogManager.getLogger("main");
-    public static CheckUpdate[] checkUpdates = new CheckUpdate[30];
+    public static CheckUpdateHandler[] checkUpdates = new CheckUpdateHandler[30];
 
     public static void main(String[] args) throws Exception {
 
@@ -77,7 +76,7 @@ public class main {
             if (listOfFiles[i].isFile() && listOfFiles[i].getName().endsWith(".properties") && !listOfFiles[i].getName().equals("server_example.properties")) {
                 hasServerConfig = true; // Set flag to true if a valid config is found
                 mainLogger.info("find server config: " + listOfFiles[i].getName());
-                CheckUpdate updater = new CheckUpdate(listOfFiles[i].getName());
+                CheckUpdateHandler updater = new CheckUpdateHandler(listOfFiles[i].getName());
                 checkUpdates[i] = updater;
             }
         }
@@ -88,7 +87,7 @@ public class main {
         }
 
         // Start update checks for all the valid server configurations
-        for (CheckUpdate servers : checkUpdates) {
+        for (CheckUpdateHandler servers : checkUpdates) {
             if (servers != null) {
                 // TEMP servers.start();
                 Thread.sleep(1000L);

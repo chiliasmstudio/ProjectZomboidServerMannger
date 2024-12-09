@@ -37,7 +37,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 
-public class CheckUpdate extends Thread {
+public class CheckUpdateHandler extends Thread {
     // Last check time.
     private long unixTimestamp = 0L;
     // Server config file.
@@ -45,7 +45,7 @@ public class CheckUpdate extends Thread {
     private Logger serverLogger;
     private RconCommandHandler rconCommandHandler;
 
-    public CheckUpdate(String configDir) throws Exception {
+    public CheckUpdateHandler(String configDir) throws Exception {
         serverConfig.LoadConfig("config//servers//" + configDir);
         serverLogger = LogManager.getLogger(serverConfig.getServerName());
         serverLogger.info("Server config loaded");
