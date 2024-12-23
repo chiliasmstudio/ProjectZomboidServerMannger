@@ -60,11 +60,14 @@ public class CheckUpdateHandler extends Thread {
             } catch (IOException e) {
                 // Unable to connect to the server
                 e.printStackTrace();//TODO Log4j
+                return;
             } catch (AuthenticationException e) {
                 // Authentication failed
                 e.printStackTrace();//TODO Log4j
+                return;
             } catch (Exception e) {
                 e.printStackTrace();
+                return;
             }
 
             serverLogger.info("Rcon ok.");
@@ -77,7 +80,7 @@ public class CheckUpdateHandler extends Thread {
 
                 try {
                     serverLogger.info(formattedDate(Instant.now().getEpochSecond()) + " (" + Instant.now().getEpochSecond() + ")" + " start check.");
-                    itemList = SteamAPI.GetPublishedFileDetails(SteamAPI.GetCollectionDetail(2857565347L));
+                    itemList = SteamAPI.GetPublishedFileDetails(SteamAPI.GetCollectionDetail(serverConfig.getSteamCollections()));
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
@@ -106,8 +109,10 @@ public class CheckUpdateHandler extends Thread {
 
                 // Restart server.
                 if (needRestart) {
+
+                    //TODO WAIL FOR REPLACE
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " need reboot! restart in 10 minute.").queue();
-                    rconCommandHandler.sendMessage("Server need reboot! restart in 10 minute.");
+
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage("Mod to update:").queue();
                     for (int i = 0; i < updateList.length(); i++) {
                         JSONObject element = updateList.getJSONObject(i);
@@ -116,31 +121,38 @@ public class CheckUpdateHandler extends Thread {
                     }
 
 
-                    Thread.sleep(60 * 1000L);// 5 minute.
-                    rconCommandHandler.sendMessage("Server need reboot! restart in 4 minute.");
-                    Thread.sleep(240 * 1000L);// 1 minute.
+                    rconCommandHandler.sendMessage("Server need reboot! restart in 10 minute.");
+                    SendLog("Server need reboot! restart in 10 minute.");
+                    //TODO DISCORD MESSAGE
+
+
+
+                    Thread.sleep(2 * 1000L);
+                    //Thread.sleep(300 * 1000L);// 5 minute.
+                    rconCommandHandler.sendMessage("Server need reboot! restart in 5 minute.");
+                    SendLog("Server need reboot! restart in 5 minute.");
+
+                    Thread.sleep(2 * 1000L);
+                    //Thread.sleep(240 * 1000L);// 1 minute.
                     rconCommandHandler.sendMessage("Server need reboot! restart in 1 minute.");
-                    Thread.sleep(30 * 1000L);// 30 second.
+                    SendLog("Server need reboot! restart in 1 minute.");
+
+                    Thread.sleep(2 * 1000L);
+                    //Thread.sleep(30 * 1000L);// 30 second.
                     rconCommandHandler.sendMessage("Server need reboot! restart in 30 second.");
-                    Thread.sleep(20 * 1000L);// 10 second.
+                    SendLog("Server need reboot! restart in 30 second.");
+
+                    Thread.sleep(2 * 1000L);
+                    //Thread.sleep(20 * 1000L);// 10 second.
                     rconCommandHandler.sendMessage("Server need reboot! restart in 10 second.");
+                    SendLog("Server need reboot! restart in 10 second.");
 
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
                     SendLog("Stopping server.");
 
-                    int tryClose = 0;
-                    while (true) {
-                        if (closeServer()) {
-                            Thread.sleep(60 * 1000L);
-                            SendLog("Server has stop.");
-                            break;
-                        } else {
-                            Thread.sleep(3000L);
-                            if (tryClose > 3)
-                                throw new RuntimeException("Failed to execute code after 3 attempts");
-                        }
-                        tryClose++;
-                    }
+                    closeServer();
+                    Thread.sleep(60 * 1000L);
+                    SendLog("Server has stop.");
 
                     // Try to boot server.
                     if (!startServer())
@@ -174,9 +186,10 @@ public class CheckUpdateHandler extends Thread {
         try {
             ProcessBuilder server = null;
             if (SystemUtils.IS_OS_WINDOWS) {
+                throw new RuntimeException("Error, we not support mac yet");
                 //server = new ProcessBuilder("cmd", "/c start " + serverConfig.getServerStartupScrip()).directory(new File(serverConfig.getServerDirectory()));
             } else if (SystemUtils.IS_OS_MAC) {
-                throw new RuntimeException("Error");
+                throw new RuntimeException("Error, we not support mac yet");
             } else if (SystemUtils.IS_OS_LINUX) {
                 //server = new ProcessBuilder("xterm", "-e", "sh your_script.sh").directory(new File(serverConfig.getServerDirectory()));
             }
@@ -231,7 +244,7 @@ public class CheckUpdateHandler extends Thread {
     private String formattedDate(Long unixTimestamp) {
         ZoneId zoneId;
         //if (serverConfig.getTimeZone().equalsIgnoreCase("Auto"))
-            zoneId = ZoneId.systemDefault();
+        zoneId = ZoneId.systemDefault();
         //else
         //    zoneId = ZoneId.of(serverConfig.getTimeZone());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss").withZone(zoneId);

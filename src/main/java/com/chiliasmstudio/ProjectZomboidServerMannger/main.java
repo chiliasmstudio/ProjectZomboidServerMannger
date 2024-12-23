@@ -43,17 +43,21 @@ public class main {
     public static void main(String[] args) throws Exception {
 
         for (String arg : args) {
-            // Set the logging level based on whether the -debug flag is used
+            // Set the logging level based on the flags passed
             if ("-debug".equalsIgnoreCase(arg)) {
                 Configurator.setRootLevel(Level.DEBUG);
-                break;
+                break; // Stop checking after setting DEBUG level
+            } else if ("-trace".equalsIgnoreCase(arg)) {
+                Configurator.setRootLevel(Level.TRACE);
+                break; // Stop checking after setting TRACE level
             }
         }
 
 
         //SetUpLog4j();
-        mainLogger.debug("This is a debug message.");
-        mainLogger.info("This is an info message.");
+        mainLogger.trace("This is the trace message, Hello world!");
+        mainLogger.debug("This is a debug message, Hello world!");
+        mainLogger.info("This is an info message, Hello world!");
         //mainLogger.error("This is an error message.");
 
         Config.LoadConfig(".//config//config.properties");
@@ -89,8 +93,37 @@ public class main {
         // Start update checks for all the valid server configurations
         for (CheckUpdateHandler servers : checkUpdates) {
             if (servers != null) {
-                // TEMP servers.start();
-                Thread.sleep(1000L);
+                servers.start();
+                Thread.sleep(10*1000L);
+            }
+        }
+
+        // Keep all threads running, remove finished ones and recreate them
+        while (true) {
+            boolean anyThreadRemovedOrRestarted = false;
+
+            // Check each thread if it has finished (is not alive). Restart only those that finished.
+            for (int i = 0; i < checkUpdates.length; i++) {
+                CheckUpdateHandler server = checkUpdates[i];
+                if (server != null && !server.isAlive()) {
+                    // Thread is not alive (ended), remove it and restart it
+                    mainLogger.info("Thread for server " + server.getName() + " has ended. Removing and restarting...");
+
+                    // Remove the old thread reference
+                    checkUpdates[i] = null;
+
+                    // Recreate the thread for the server
+                    checkUpdates[i] = new CheckUpdateHandler(server.getName());
+                    checkUpdates[i].start();  // Start the new thread
+                    anyThreadRemovedOrRestarted = true;  // Indicate that at least one thread was restarted
+                    Thread.sleep(10 * 1000L);  // Wait before checking the next thread
+                }
+            }
+
+            // If no threads were removed or restarted, wait before checking again
+            if (!anyThreadRemovedOrRestarted) {
+                mainLogger.trace("No threads need to be restarted at this moment");
+                Thread.sleep(10 * 1000L);  // Sleep for a bit before checking again
             }
         }
     }
