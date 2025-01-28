@@ -22,6 +22,8 @@ import com.chiliasmstudio.ProjectZomboidServeManager.ServerConfig;
 import com.chiliasmstudio.ProjectZomboidServeManager.lib.Util.Rcon.RconCommandHandler;
 import com.chiliasmstudio.ProjectZomboidServeManager.lib.Util.Steam.SteamAPI;
 import com.chiliasmstudio.ProjectZomboidServeManager.function.discord.MainBot;
+import lombok.Getter;
+import lombok.Setter;
 import net.kronos.rkon.core.Rcon;
 import net.kronos.rkon.core.ex.AuthenticationException;
 import org.apache.commons.lang3.SystemUtils;
@@ -39,15 +41,21 @@ import java.util.Collections;
 
 public class CheckUpdateHandler extends Thread {
     // Last check time.
+    @Getter @Setter
     private long unixTimestamp = 0L;
     // Server config file.
-    private ServerConfig serverConfig = new ServerConfig();
-    private Logger serverLogger;
+    @Getter
+    private final ServerConfig serverConfig = new ServerConfig();
+    private final Logger serverLogger;
     private RconCommandHandler rconCommandHandler;
+    @Getter
+    private String configDir;
 
     public CheckUpdateHandler(String configDir) throws Exception {
         serverConfig.LoadConfig("config//servers//" + configDir);
         serverLogger = LogManager.getLogger(serverConfig.getServerName());
+        this.configDir = configDir;
+        serverLogger.debug("Server config dir: " + configDir);
         serverLogger.info("Server config loaded");
     }
 
@@ -71,9 +79,7 @@ public class CheckUpdateHandler extends Thread {
             }
 
             serverLogger.info("Rcon ok.");
-            unixTimestamp = Instant.now().getEpochSecond();
-            while (true) {
-
+            //unixTimestamp = Instant.now().getEpochSecond();
                 //Check update
                 JSONArray updateList = new JSONArray();
                 JSONArray itemList = null;
@@ -93,7 +99,7 @@ public class CheckUpdateHandler extends Thread {
                         try {
                             JSONObject item = itemList.getJSONObject(i);
                             if (item.getLong("time_updated") > unixTimestamp) {
-                                SendLog("Need update: " + item.get("title"));
+                                serverLogger.info("Need update: " + item.get("title"));
                                 updateList.put(item);
                                 needRestart = true;
                             }
@@ -101,9 +107,9 @@ public class CheckUpdateHandler extends Thread {
                             error++;
                         }
                     }
-                } else
-                    SendLog("Error on check.");
-                SendLog(error + " items error on check.");
+                } else serverLogger.error("Error on check.");
+
+                serverLogger.info(error + " items error on check.");
                 unixTimestamp = Instant.now().getEpochSecond();
 
 
@@ -122,42 +128,41 @@ public class CheckUpdateHandler extends Thread {
 
 
                     rconCommandHandler.sendMessage("Server need reboot! restart in 10 minute.");
-                    SendLog("Server need reboot! restart in 10 minute.");
+                    serverLogger.info("Server need reboot! restart in 10 minute.");
                     //TODO DISCORD MESSAGE
-
 
 
                     Thread.sleep(2 * 1000L);
                     //Thread.sleep(300 * 1000L);// 5 minute.
                     rconCommandHandler.sendMessage("Server need reboot! restart in 5 minute.");
-                    SendLog("Server need reboot! restart in 5 minute.");
+                    serverLogger.info("Server need reboot! restart in 5 minute.");
 
                     Thread.sleep(2 * 1000L);
                     //Thread.sleep(240 * 1000L);// 1 minute.
                     rconCommandHandler.sendMessage("Server need reboot! restart in 1 minute.");
-                    SendLog("Server need reboot! restart in 1 minute.");
+                    serverLogger.info("Server need reboot! restart in 1 minute.");
 
                     Thread.sleep(2 * 1000L);
                     //Thread.sleep(30 * 1000L);// 30 second.
                     rconCommandHandler.sendMessage("Server need reboot! restart in 30 second.");
-                    SendLog("Server need reboot! restart in 30 second.");
+                    serverLogger.info("Server need reboot! restart in 30 second.");
 
                     Thread.sleep(2 * 1000L);
                     //Thread.sleep(20 * 1000L);// 10 second.
                     rconCommandHandler.sendMessage("Server need reboot! restart in 10 second.");
-                    SendLog("Server need reboot! restart in 10 second.");
+                    serverLogger.info("Server need reboot! restart in 10 second.");
 
                     MainBot.bot_Main.getTextChannelById(serverConfig.getDiscordChannel()).sendMessage(serverConfig.getServerName() + " rebooting!").queue();
-                    SendLog("Stopping server.");
+                    serverLogger.info("Stopping server.");
 
                     closeServer();
                     Thread.sleep(60 * 1000L);
-                    SendLog("Server has stop.");
+                    serverLogger.info("Server has stop.");
 
                     // Try to boot server.
-                    if (!startServer())
-                        throw new RuntimeException();
-                    SendLog("Boot ok.");
+                    //if (!startServer())
+                    //    throw new RuntimeException();
+                    //SendLog("Boot ok.");
 
                     // Wait until server is start.
                     //Thread.sleep(serverConfig.getRestartTime() * 1000L);
@@ -166,12 +171,11 @@ public class CheckUpdateHandler extends Thread {
                     //rconCommandHandler = new RconCommandHandler(serverConfig);
                     //if(!rconCommandHandler.connect())
                     //    throw new RuntimeException();
-                    SendLog("Rcon ok.");
+                    //SendLog("Rcon ok.");
                 }
-
-
-                Thread.sleep(serverConfig.getCheckFrequency() * 1000L);//
-            }
+                rconCommandHandler.disConnect();
+                serverLogger.debug("Check end, waiting "+serverConfig.getCheckFrequency()+" second");
+                Thread.sleep(serverConfig.getCheckFrequency() * 1000L);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);//TODO Log4j
         }

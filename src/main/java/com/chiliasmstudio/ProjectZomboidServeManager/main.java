@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.time.Instant;
 
 
 import static com.chiliasmstudio.ProjectZomboidServeManager.function.discord.MainBot.initialization_Main;
@@ -81,6 +82,7 @@ public class main {
                 hasServerConfig = true; // Set flag to true if a valid config is found
                 mainLogger.info("find server config: " + listOfFiles[i].getName());
                 CheckUpdateHandler updater = new CheckUpdateHandler(listOfFiles[i].getName());
+                updater.setUnixTimestamp(Instant.now().getEpochSecond());
                 checkUpdates[i] = updater;
             }
         }
@@ -107,13 +109,11 @@ public class main {
                 CheckUpdateHandler server = checkUpdates[i];
                 if (server != null && !server.isAlive()) {
                     // Thread is not alive (ended), remove it and restart it
-                    mainLogger.info("Thread for server " + server.getName() + " has ended. Removing and restarting...");
-
-                    // Remove the old thread reference
-                    checkUpdates[i] = null;
-
+                    mainLogger.debug("Thread for server " + server.getServerConfig().getServerName() + " has ended. Removing and restarting...");
                     // Recreate the thread for the server
-                    checkUpdates[i] = new CheckUpdateHandler(server.getName());
+                    checkUpdates[i] = new CheckUpdateHandler(server.getConfigDir());
+                    // Reload the check time
+                    checkUpdates[i].setUnixTimestamp(server.getUnixTimestamp());
                     checkUpdates[i].start();  // Start the new thread
                     anyThreadRemovedOrRestarted = true;  // Indicate that at least one thread was restarted
                     Thread.sleep(10 * 1000L);  // Wait before checking the next thread
