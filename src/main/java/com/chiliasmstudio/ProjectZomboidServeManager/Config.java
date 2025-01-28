@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger;
+package com.chiliasmstudio.ProjectZomboidServeManager;
 
 import java.io.*;
 import java.nio.file.Files;

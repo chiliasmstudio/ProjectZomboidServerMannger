@@ -16,11 +16,11 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord;
+package com.chiliasmstudio.ProjectZomboidServeManager.function.discord;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.LegacyCommands.HelloWorld;
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.LegacyCommands.TestCommand;
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.SlashCommands.LuCat;
+import com.chiliasmstudio.ProjectZomboidServeManager.function.discord.LegacyCommands.HelloWorld;
+import com.chiliasmstudio.ProjectZomboidServeManager.function.discord.LegacyCommands.TestCommand;
+import com.chiliasmstudio.ProjectZomboidServeManager.function.discord.SlashCommands.LuCat;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;

@@ -16,9 +16,9 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger;
+package com.chiliasmstudio.ProjectZomboidServeManager;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid.CheckUpdateHandler;
+import com.chiliasmstudio.ProjectZomboidServeManager.function.projectzomboid.CheckUpdateHandler;
 
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
@@ -34,7 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 
 
-import static com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot.initialization_Main;
+import static com.chiliasmstudio.ProjectZomboidServeManager.function.discord.MainBot.initialization_Main;
 
 public class main {
     private static final Logger mainLogger = LogManager.getLogger("main");

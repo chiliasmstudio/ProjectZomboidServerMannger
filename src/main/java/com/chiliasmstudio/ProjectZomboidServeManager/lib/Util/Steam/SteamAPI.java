@@ -16,9 +16,9 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam;
+package com.chiliasmstudio.ProjectZomboidServeManager.lib.Util.Steam;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.Config;
+import com.chiliasmstudio.ProjectZomboidServeManager.Config;
 import org.apache.hc.client5.http.classic.methods.HttpPost;
 import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;

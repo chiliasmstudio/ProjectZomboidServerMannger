@@ -16,23 +16,39 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.SlashCommands;
+package com.chiliasmstudio.ProjectZomboidServeManager.function.discord.LegacyCommands;
 
+import com.chiliasmstudio.ProjectZomboidServeManager.function.discord.MainBot;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 
 
-public class LuCat extends ListenerAdapter{
+public class HelloWorld extends ListenerAdapter{
 
     /**
-     * Reply meow when lucat command send.
+     * Say Hello world! when !Hello world is received.
+     */
+    public void onMessageReceived(MessageReceivedEvent event) {
+        if (event.getMessage().getContentStripped().equalsIgnoreCase("!Hello world") && !event.getMember().getUser().isBot()) {
+            event.getChannel().sendMessage("Hello world!").queue();
+            MainBot.bot_Main.retrieveApplicationEmojiById(1315566752192790558L);
+            Emoji customEmoji = Emoji.fromCustom("test",1315566752192790558L,true);
+            event.getChannel().sendMessage(customEmoji.getFormatted()).queue();
+
+        }
+    }
+
+    /**
+     * Reply Hello world! when helloworld command send.
      */
     @Override
     public void onSlashCommandInteraction(SlashCommandInteractionEvent event) {
-        if (event.getName().equals("lucat")) {
-            event.reply("meow").queue(); // reply immediately
+        if (event.getName().equals("helloworld")) {
+            event.reply("Hello world!").queue(); // reply immediately
         }
     }
 
@@ -42,7 +58,7 @@ public class LuCat extends ListenerAdapter{
     @Override
     public void onGuildReady(GuildReadyEvent event){
         event.getGuild().updateCommands().addCommands(
-                Commands.slash("lucat", "meow")
+                Commands.slash("helloworld", "Say hello world!")
         ).queue();
     }
 }

@@ -16,12 +16,12 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.chiliasmstudio.ProjectZomboidServerMannger.function.projectzomboid;
+package com.chiliasmstudio.ProjectZomboidServeManager.function.projectzomboid;
 
-import com.chiliasmstudio.ProjectZomboidServerMannger.ServerConfig;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Rcon.RconCommandHandler;
-import com.chiliasmstudio.ProjectZomboidServerMannger.lib.Util.Steam.SteamAPI;
-import com.chiliasmstudio.ProjectZomboidServerMannger.function.discord.MainBot;
+import com.chiliasmstudio.ProjectZomboidServeManager.ServerConfig;
+import com.chiliasmstudio.ProjectZomboidServeManager.lib.Util.Rcon.RconCommandHandler;
+import com.chiliasmstudio.ProjectZomboidServeManager.lib.Util.Steam.SteamAPI;
+import com.chiliasmstudio.ProjectZomboidServeManager.function.discord.MainBot;
 import net.kronos.rkon.core.Rcon;
 import net.kronos.rkon.core.ex.AuthenticationException;
 import org.apache.commons.lang3.SystemUtils;

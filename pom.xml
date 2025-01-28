@@ -24,7 +24,7 @@
 
     <groupId>com.chiliasmstudio</groupId>
     <artifactId>ProjectZomboidServerManager</artifactId>
-    <version>Alpha-1.4.0</version>
+    <version>indev-1.4.1</version>
 
     <properties>
         <java.version>21</java.version>
@@ -89,7 +89,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.chiliasmstudio.ProjectZomboidServerMannger.main</mainClass>
+                    <mainClass>com.chiliasmstudio.ProjectZomboidServeManager.main</mainClass>
                     <layout>ZIP</layout>
                 </configuration>
                 <executions>
